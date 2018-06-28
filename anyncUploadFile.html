@@ -1,0 +1,29 @@
+<html>
+    <head>
+        <title>anync Upload File</title>
+        <meta charset="UTF-8">
+        <!--<script type="text/javascript" src="js/jquery-3.4.0.min.js"></script>-->
+        <script src="js/jquery-2.1.0.min.js"></script>
+        <script src="js/asyncUploadFile.js"></script>
+    </head>
+    <style></style>
+    <body>
+        <form action="/test.php" method="post" id="form" enctype="multipart/form-data">
+            <img src="" alt="" id="img">
+            <input type="text" name="testName" value="111">
+            <input type="file" name="file" id="file">
+            <button type="button" id="start">开始</button>
+        </form>
+    </body>
+    <script>
+        $(function(){
+            $("#img").asyncUpload({
+                btnFile:"#file",
+                upUrl:'/test.php',
+                callBack:function(res){
+                    console.log(1111111,res);
+                }
+            });
+        })
+    </script>
+</html>
