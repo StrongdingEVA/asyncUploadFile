@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <script src="js/jquery.min.js"></script>
         <script src="js/asyncUploadFile.js"></script>
+        <link rel="stylesheet" href="css/asyncUploadFile.css">
     </head>
     <style>
 		#fileDiv{
@@ -22,8 +23,6 @@
     <body>
         <form action="/test.php" method="post" id="form" enctype="multipart/form-data">
             <img src="" alt="" id="img">
-            <input type="text" name="testName" value="111">
-            <input type="file" name="file" id="file">
             <div id="fileDiv">
             	
             </div>
@@ -34,7 +33,8 @@
         $(function(){
             $("#img").asyncUpload({
                 filePanel:'#fileDiv',
-                btnFile:"#file",
+                autoUpload:false,
+                cliBtn:'#start',
                 upUrl:'/test.php',
                 callBack:function(res){
                     console.log(1111111,res);

@@ -1,0 +1,10 @@
+#asyn_panel{
+    width:100%;
+    height:auto;
+    margin:20px 15px 10px 0px;
+}
+#asyn_panel img{
+    width: 15%;
+    border: 15px solid transparent;
+    box-sizing: border-box;
+}
