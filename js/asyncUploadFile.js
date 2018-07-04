@@ -61,12 +61,12 @@ jQuery.fn.extend({
         var that = this;
         ele.bind('change',function(){
             var files = !!this.files ? this.files : [];
+            files = this.files;
             if (!files.length || !window.FileReader){
                 that.setError(that.getError(5));return;
             }
-
+            files = files[0];
             that.cfg.fileExt = files.name.substr(files.name.indexOf('.') + 1)
-            that.cfg.files.push(files);
             that.cfg.fileSize = files.size;
 
             if(!that.checkAlow()){
@@ -78,14 +78,15 @@ jQuery.fn.extend({
                 that.setError(that.getError(ckSize));return;
             }
             var temp = {
-                file:files[0]
+                file:files
             }
-            if(that.cfg.autoSlice && that.sliceSize <= files.size){ //如果开启分片上传  并且文件大小达到要求 使用分片上传
+
+            if(that.cfg.autoSlice && that.cfg.sliceSize <= files.size){ //如果开启分片上传  并且文件大小达到要求 使用分片上传
                 temp.model = 2;
             }else{
                 temp.model = 1;
             }
-            files.push(temp);
+            that.cfg.files.push(temp);
 
             if (/^image/.test(files.type)){
                 var reader = new FileReader();
@@ -168,32 +169,52 @@ jQuery.fn.extend({
     //上传文件
     doUpload:function(){
         var that = this;
-         var files = that.cfg.files;
-         if(!files.length){
-             this.setError(this.getError(9));return;
-         }
+        var files = that.cfg.files;
         files.map(function(a){
-            var formData = new FormData();
-            formData.append(that.cfg.upField, a);
-            $.ajax({
-                url: that.cfg.upUrl,
-                type: 'POST',
-                datatype: 'json',
-                data: formData,
-                cache:false,
-                xhrFields: {
-                    withCredentials: true
-                },
-                traditional: true,
-                contentType: false,
-                processData: false,
-                success: function (res) {
-                    if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
-                        that.cfg.callBack(res);
-                    }
-                }
-            })
+            if(!a.file.size){
+                that.setError(that.getError(9));return;
+            }
+            if(a.model == 1){//普通上传方式
+                that.uploadNormal(a.file);
+            }else{//分片上传方式
+                that.uploadSlice();
+            }
         })
+    },
+
+    //普通上传
+    uploadNormal:function(data){
+        var taht = this;
+        var formData = new FormData();
+        formData.append(that.cfg.upField, data);
+        $.ajax({
+            url: that.cfg.upUrl,
+            type: 'POST',
+            datatype: 'json',
+            data: formData,
+            cache:false,
+            xhrFields: {
+                withCredentials: true
+            },
+            traditional: true,
+            contentType: false,
+            processData: false,
+            success: function (res) {
+                if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
+                    that.cfg.callBack(res);
+                }
+            }
+        })
+    },
+
+    uploadSlice:function(){
+        this.sliceFile();
+    },
+
+    //切割文件
+    sliceFile:function(file){
+        var files = sliceFile._do(file);
+        console.log(files);
     },
 
     //输出错误信息
@@ -233,3 +254,54 @@ jQuery.fn.extend({
         }
     }
 });
+
+function alert_js(cfg) {
+    this.cfg = $.extend({
+        sliceSize = 1024 * 1024; //每片大小
+        start = 0;
+        end = cfg.start + cfg.sliceSize;
+        block = 0;
+        file = '';
+        flies = [];
+    }, cfg);
+    this.cfg.loading = false;
+    var cfg = this.cfg;
+    this.sliceFile();
+    var sliceFile = function(){
+        var that = this;
+        this.cfg.file = file;
+        var blob = file.slice(that.cfg.start,that.cfg.end);
+        that.cfg.start += end;
+        //end = start + LENGTH;
+        that.cfg.flies.push(blob);
+        that.cfg.block += 1;
+        if(that.cfg.start < file.size){
+            that._do(file);
+        }
+        return that.files;
+    }
+}
+jQuery.fn.extend({
+    sliceFile:function(){
+        this.cfg.sliceSize = 1024 * 1024; //每片大小
+        this.cfg.start = 0;
+        this.cfg.end = this.cfg.start + this.cfg.sliceSize;
+        this.cfg.block = 0;
+        this.cfg.file = '';
+        this.cfg.flies = [];
+    },
+    _do: function(file) {
+        var that = this;
+        this.cfg.file = file;
+        var blob = file.slice(that.cfg.start,that.cfg.end);
+        that.cfg.start += end;
+        //end = start + LENGTH;
+        that.cfg.flies.push(blob);
+        that.cfg.block += 1;
+        if(that.cfg.start < file.size){
+            that._do(file);
+        }
+        return that.files;
+    },
+});
+
