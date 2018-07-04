@@ -4,7 +4,7 @@ jQuery.fn.extend({
         this.cfg = {};
         this.cfg.filePanel = cfg.filePanel; //文件域选择器
         this.cfg.upField = cfg.upField || "file"; //文件域名称
-        this.cfg.autoUpload = cfg.autoUpload === false ? cfg.autoUpload : true; //默认开启自动上传
+        this.cfg.autoUpload = cfg.autoUpload == false ? cfg.autoUpload : true; //默认开启自动上传
         this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png"]; //默认允许文件后缀
         this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 2; //默认最大上传尺寸2M
         this.cfg.imgPanel = cfg.imgPanel || ""; //盛放image的容器
@@ -12,6 +12,8 @@ jQuery.fn.extend({
         this.cfg.cliBtn = cfg.cliBtn || ''; //手动点击按钮
         this.cfg.maxLen = cfg.maxLen || 1; //默认允许最多上传文件个数
         this.cfg.upUrl = cfg.upUrl || ''; //文件上传路径
+
+        this.cfg.autoSlice = cfg.autoSlice == false ? cfg.autoSlice : true;
         this.cfg.modelLimt = 1024 * 1024 * 8; //文件大于这个尺寸使用分片上传
         this.cfg.sliceSize = 1024 * 1024; //没片大小
         this.cfg.model = cfg.model || 1; //文件上传方式 1普通上传 2 分片上传
@@ -62,7 +64,7 @@ jQuery.fn.extend({
             if (!files.length || !window.FileReader){
                 that.setError(that.getError(5));return;
             }
-            files = files[0];
+
             that.cfg.fileExt = files.name.substr(files.name.indexOf('.') + 1)
             that.cfg.files.push(files);
             that.cfg.fileSize = files.size;
@@ -75,6 +77,15 @@ jQuery.fn.extend({
             if((typeof ckSize) != "boolean"){
                 that.setError(that.getError(ckSize));return;
             }
+            var temp = {
+                file:files[0]
+            }
+            if(that.cfg.autoSlice && that.sliceSize <= files.size){ //如果开启分片上传  并且文件大小达到要求 使用分片上传
+                temp.model = 2;
+            }else{
+                temp.model = 1;
+            }
+            files.push(temp);
 
             if (/^image/.test(files.type)){
                 var reader = new FileReader();
