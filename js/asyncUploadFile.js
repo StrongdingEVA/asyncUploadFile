@@ -5,8 +5,8 @@ jQuery.fn.extend({
         this.cfg.filePanel = cfg.filePanel; //文件域选择器
         this.cfg.upField = cfg.upField || "file"; //文件域名称
         this.cfg.autoUpload = cfg.autoUpload == false ? cfg.autoUpload : true; //默认开启自动上传
-        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png"]; //默认允许文件后缀
-        this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 2; //默认最大上传尺寸2M
+        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4"]; //默认允许文件后缀
+        this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 10; //默认最大上传尺寸2M
         this.cfg.imgPanel = cfg.imgPanel || ""; //盛放image的容器
         this.cfg.cliText = cfg.cliText || "点击上传"; //未开启自动上传时 生成的按钮的文字
         this.cfg.cliBtn = cfg.cliBtn || ''; //手动点击按钮
@@ -14,11 +14,11 @@ jQuery.fn.extend({
         this.cfg.upUrl = cfg.upUrl || ''; //文件上传路径
 
         this.cfg.autoSlice = cfg.autoSlice == false ? cfg.autoSlice : true;
-        this.cfg.modelLimt = 1024 * 1024 * 8; //文件大于这个尺寸使用分片上传
-        this.cfg.sliceSize = 1024 * 1024; //没片大小
+        this.cfg.modelLimt = 1024 * 1024 * 5; //文件大于这个尺寸使用分片上传
+        this.cfg.sliceSize = 1024 * 1024; //每片大小
         this.cfg.model = cfg.model || 1; //文件上传方式 1普通上传 2 分片上传
         this.cfg.callBack = cfg.callBack || {};
-        this.cfg.files = [];
+        this.cfg.sliceUploadUrl = cfg.sliceUploadUrl || '';
 
         this.cfg.status = 1;
         this.cfg.fileSize = 0;
@@ -26,9 +26,14 @@ jQuery.fn.extend({
         this.cfg.hexList = ['PD9waHA','PHNjcmlwdD4'];
         // 'PD9waHA=' === '<?php'
         // 'PHNjcmlwdD4=' ==== '<script>'
-
+        this.end = this.start + this.cfg.sliceSize;
         this._init(this.cfg);
     },
+    files : [],
+    start : 0,
+    end : 0,
+    block : 0,
+    slices : [],
     _init: function(cfg) {
         if(!cfg.filePanel || $(cfg.filePanel).length != 1){
             this.setError(this.getError(1));return;
@@ -68,7 +73,6 @@ jQuery.fn.extend({
             files = files[0];
             that.cfg.fileExt = files.name.substr(files.name.indexOf('.') + 1)
             that.cfg.fileSize = files.size;
-
             if(!that.checkAlow()){
                 that.setError(that.getError(3));return;
             }
@@ -81,27 +85,27 @@ jQuery.fn.extend({
                 file:files
             }
 
+            if(that.cfg.autoSlice && !that.cfg.sliceUploadUrl){
+                that.setError(that.getError());return;
+            }
+            // console.log(that.cfg.autoSlice,files.size,that.cfg.sliceSize);return;
             if(that.cfg.autoSlice && that.cfg.sliceSize <= files.size){ //如果开启分片上传  并且文件大小达到要求 使用分片上传
                 temp.model = 2;
             }else{
                 temp.model = 1;
             }
-            that.cfg.files.push(temp);
+            that.files.push(temp);
 
-            if (/^image/.test(files.type)){
-                var reader = new FileReader();
-                reader.readAsDataURL(files);
-                reader.onloadend = function(){
-                    if(!that.checkHex(this.result)){
-                        that.setError(that.getError(7));return;
-                    }
-                    that.setImg(this.result);
+            var reader = new FileReader();
+            reader.readAsDataURL(files);
+            reader.onloadend = function(){
+                if(!that.checkHex(this.result)){
+                    that.setError(that.getError(7));return;
                 }
-                if(that.cfg.autoUpload){
-                    that.doUpload();
-                }
-            }else{
-                that.setError(that.getError(3));return;
+                that.setShow(this.result);
+            }
+            if(that.cfg.autoUpload){
+                that.doUpload();
             }
         });
     },
@@ -109,7 +113,7 @@ jQuery.fn.extend({
     //检查文件是否允许上传
     checkAlow:function(){
         var alowStr = this.cfg.alowType.join();
-        if(alowStr.indexOf(this.cfg.fileExt) === false){
+        if(alowStr.indexOf(this.cfg.fileExt) === -1){
             return false;
         }
         return true;
@@ -152,12 +156,22 @@ jQuery.fn.extend({
     },
 
     //设置显示预览图
-    setImg:function(url){
+    setShow:function(url){
         if(!url){
             return false;
         }
         this.setPanel();
-        $(this.cfg.imgPanel).append('<img src="'+ url +'" width="120px" />')
+        var typeStrImage = 'jpg,jpeg,png,gif';
+        var typeStrVideo = 'mp4';
+        var html = '';
+        if(typeStrImage.indexOf(this.cfg.fileExt) !== -1){
+            html = '<img src="'+ url +'" width="120px" />';
+        }else if(typeStrVideo.indexOf(this.cfg.fileExt) !== -1){
+            html = '<video src="'+ url +'" controls height="120">您的浏览器不支持 video 标签。</video>';
+        }else{
+            html = '该文件类型不支持预览';
+        }
+        $(this.cfg.imgPanel).append(html)
     },
     setPanel:function(){
         if(!this.cfg.imgPanel){
@@ -169,7 +183,7 @@ jQuery.fn.extend({
     //上传文件
     doUpload:function(){
         var that = this;
-        var files = that.cfg.files;
+        var files = that.files;
         files.map(function(a){
             if(!a.file.size){
                 that.setError(that.getError(9));return;
@@ -177,14 +191,14 @@ jQuery.fn.extend({
             if(a.model == 1){//普通上传方式
                 that.uploadNormal(a.file);
             }else{//分片上传方式
-                that.uploadSlice();
+                that.uploadSlice(a.file);
             }
         })
     },
 
     //普通上传
     uploadNormal:function(data){
-        var taht = this;
+        var that = this;
         var formData = new FormData();
         formData.append(that.cfg.upField, data);
         $.ajax({
@@ -207,14 +221,73 @@ jQuery.fn.extend({
         })
     },
 
-    uploadSlice:function(){
-        this.sliceFile();
+    //分片上传
+    uploadSlice:function(file){
+        var slices = slices = this.sliceFile(file);
+        var that = this;
+        var len = Math.ceil(file.size / this.cfg.sliceSize);
+        var blobName = that.getBlobName(8);
+        slices.map(function(item){
+            var formData = new FormData();
+            formData.append(that.cfg.upField, item.blob);
+            formData.append('blobNum',item.blobNum)
+            formData.append('blobTotal',len);
+            formData.append('blobName',blobName + '_' + item.blobNum)
+            $.ajax({
+                url: that.cfg.sliceUploadUrl,
+                type: 'POST',
+                datatype: 'json',
+                data: formData,
+                cache:false,
+                xhrFields: {
+                    withCredentials: true
+                },
+                traditional: true,
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                }
+            })
+        })
     },
 
     //切割文件
     sliceFile:function(file){
-        var files = sliceFile._do(file);
-        console.log(files);
+        var that = this;
+        var thatFile = file;
+        var blob = thatFile.slice(that.start,that.end);
+        that.start = that.end;
+        that.end += that.cfg.sliceSize;
+        that.block += 1;
+
+        var temp = {
+            blob:blob,
+            blobNum:that.block,
+        };
+
+        that.slices.push(temp);
+        if(that.start < file.size){
+            that.sliceFile(file);
+        }
+        that.start = 0;
+        that.end = that.start + that.cfg.sliceSize;
+        return that.slices;
+    },
+
+    //获取分片名
+    getBlobName:function(len,prefix,suffix){
+        var hash = ['a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'];
+        len = len ? len : 8;
+        prefix = prefix ? prefix : '';
+        suffix = suffix ? suffix : '';
+        var str = prefix;
+        for(var i=0;i<len;i++){
+            var need = parseInt(Math.random() * (60 + 1));
+            str += hash[need];
+        }
+        str = str + suffix;console.log(str);
+        return str;
     },
 
     //输出错误信息
@@ -251,57 +324,13 @@ jQuery.fn.extend({
             case 9:
                 return "没有可以上传的文件";
                 break;
+            case 10:
+                return "使用分片上传必须设置分片上传地址";
+                break;
+            default:
+                return "未知错误";
+                break;
         }
     }
-});
-
-function alert_js(cfg) {
-    this.cfg = $.extend({
-        sliceSize = 1024 * 1024; //每片大小
-        start = 0;
-        end = cfg.start + cfg.sliceSize;
-        block = 0;
-        file = '';
-        flies = [];
-    }, cfg);
-    this.cfg.loading = false;
-    var cfg = this.cfg;
-    this.sliceFile();
-    var sliceFile = function(){
-        var that = this;
-        this.cfg.file = file;
-        var blob = file.slice(that.cfg.start,that.cfg.end);
-        that.cfg.start += end;
-        //end = start + LENGTH;
-        that.cfg.flies.push(blob);
-        that.cfg.block += 1;
-        if(that.cfg.start < file.size){
-            that._do(file);
-        }
-        return that.files;
-    }
-}
-jQuery.fn.extend({
-    sliceFile:function(){
-        this.cfg.sliceSize = 1024 * 1024; //每片大小
-        this.cfg.start = 0;
-        this.cfg.end = this.cfg.start + this.cfg.sliceSize;
-        this.cfg.block = 0;
-        this.cfg.file = '';
-        this.cfg.flies = [];
-    },
-    _do: function(file) {
-        var that = this;
-        this.cfg.file = file;
-        var blob = file.slice(that.cfg.start,that.cfg.end);
-        that.cfg.start += end;
-        //end = start + LENGTH;
-        that.cfg.flies.push(blob);
-        that.cfg.block += 1;
-        if(that.cfg.start < file.size){
-            that._do(file);
-        }
-        return that.files;
-    },
 });
 
