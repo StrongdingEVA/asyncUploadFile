@@ -6,7 +6,7 @@ jQuery.fn.extend({
         this.cfg.upField = cfg.upField || "file"; //文件域名称
         this.cfg.autoUpload = cfg.autoUpload == false ? cfg.autoUpload : true; //默认开启自动上传
         this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4"]; //默认允许文件后缀
-        this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 10; //默认最大上传尺寸2M
+        this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 100; //默认最大上传尺寸2M
         this.cfg.imgPanel = cfg.imgPanel || ""; //盛放image的容器
         this.cfg.cliText = cfg.cliText || "点击上传"; //未开启自动上传时 生成的按钮的文字
         this.cfg.cliBtn = cfg.cliBtn || ''; //手动点击按钮
@@ -232,7 +232,8 @@ jQuery.fn.extend({
             formData.append(that.cfg.upField, item.blob);
             formData.append('blobNum',item.blobNum)
             formData.append('blobTotal',len);
-            formData.append('blobName',blobName + '_' + item.blobNum)
+            formData.append('blobName',blobName);
+            formData.append('suffix',that.cfg.fileExt)
             $.ajax({
                 url: that.cfg.sliceUploadUrl,
                 type: 'POST',
