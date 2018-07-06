@@ -14,19 +14,28 @@ class Upload{
         $this->suffix = $suffix ? '.' . $suffix : '.temp';
 
         $this->moveFile();
-        $this->fileMerge();
+        if($this->checkBlock()){
+            $this->fileMerge();
+        }
     }
 
     //判断是否是最后一块，如果是则进行文件合成并且删除文件块
     private function fileMerge(){
-        if($this->blobNum == $this->totalBlobNum){
-            $blob = '';
-            for($i=1; $i<= $this->totalBlobNum; $i++){
-                $blob .= file_get_contents($this->filepath.'/'. $this->fileName.'__'.$i);
-            }
-            file_put_contents($this->filepath.'/'. $this->fileName . $this->suffix,$blob);
-            $this->deleteFileBlob();
+        $blob = '';
+        for($i=1; $i<= $this->totalBlobNum; $i++){
+            $blob .= file_get_contents($this->filepath.'/'. $this->fileName.'__'.$i);
         }
+        file_put_contents($this->filepath.'/'. $this->fileName . $this->suffix,$blob);
+        $this->deleteFileBlob();
+    }
+
+    private function checkBlock(){
+        for($i=1; $i<= $this->totalBlobNum; $i++){
+            if(!file_exists($this->filepath.'/'. $this->fileName.'__'.$i)){
+                return false;
+            }
+        }
+        return true;
     }
 
     //删除文件块
