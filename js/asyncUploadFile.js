@@ -12,6 +12,7 @@ jQuery.fn.extend({
         this.cfg.cliBtn = cfg.cliBtn || ''; //手动点击按钮
         this.cfg.maxLen = cfg.maxLen || 1; //默认允许最多上传文件个数
         this.cfg.upUrl = cfg.upUrl || ''; //文件上传路径
+        this.cfg.isMulti = cfg.isMulti || false;
 
         this.cfg.autoSlice = cfg.autoSlice == false ? cfg.autoSlice : true;
         this.cfg.modelLimt = 1024 * 1024 * 5; //文件大于这个尺寸使用分片上传
@@ -21,15 +22,13 @@ jQuery.fn.extend({
         this.cfg.sliceUploadUrl = cfg.sliceUploadUrl || '';
 
         this.cfg.status = 1;
-        this.cfg.fileSize = 0;
-        this.cfg.fileExt = '';
         this.cfg.hexList = ['PD9waHA','PHNjcmlwdD4'];
         // 'PD9waHA=' === '<?php'
         // 'PHNjcmlwdD4=' ==== '<script>'
         this.end = this.start + this.cfg.sliceSize;
         this._init(this.cfg);
     },
-    files : [],
+    fileObjs : [],
     start : 0,
     end : 0,
     block : 0,
@@ -48,7 +47,7 @@ jQuery.fn.extend({
         //为容器绑定点击事件
         var that = this;
         $(cfg.filePanel).bind('click',function(){
-            var inp = $('<input type="file" style="display:none">');
+            var inp = $('<input type="file" multiple style="display:none">');
             $(this).after(inp);
             that.bindChange(inp);
             inp.click();
@@ -70,59 +69,86 @@ jQuery.fn.extend({
             if (!files.length || !window.FileReader){
                 that.setError(that.getError(5));return;
             }
-            files = files[0];
-            that.cfg.fileExt = files.name.substr(files.name.indexOf('.') + 1)
-            that.cfg.fileSize = files.size;
-            if(!that.checkAlow()){
-                that.setError(that.getError(3));return;
-            }
-            var ckSize = that.checkSize();
 
-            if((typeof ckSize) != "boolean"){
-                that.setError(that.getError(ckSize));return;
-            }
-            var temp = {
-                file:files
+            if(that.cfg.isMulti){
+                if(!that.checkMulti(files.length)){
+                    that.setError(that.getError(11));return;
+                }
             }
 
             if(that.cfg.autoSlice && !that.cfg.sliceUploadUrl){
                 that.setError(that.getError());return;
             }
-            // console.log(that.cfg.autoSlice,files.size,that.cfg.sliceSize);return;
-            if(that.cfg.autoSlice && that.cfg.sliceSize <= files.size){ //如果开启分片上传  并且文件大小达到要求 使用分片上传
-                temp.model = 2;
-            }else{
-                temp.model = 1;
-            }
-            that.files.push(temp);
 
-            var reader = new FileReader();
-            reader.readAsDataURL(files);
-            reader.onloadend = function(){
-                if(!that.checkHex(this.result)){
-                    that.setError(that.getError(7));return;
-                }
-                that.setShow(this.result);
+            that.setFiles(files);
+            if(that.fileObjs.length == 0){
+                that.setError(that.getError(9));return;
             }
+
+            that.setFileReader();
+
             if(that.cfg.autoUpload){
                 that.doUpload();
             }
         });
     },
 
+    setFileReader:function () {
+        var that = this;
+        this.fileObjs.map(function (a) {
+            var reader = new FileReader();
+            reader.readAsDataURL(a.file);
+            reader.onloadend = function(e){
+                if(!that.checkHex(e.target.result)){
+                    that.setError(that.getError(7));
+                    return;
+                }
+                that.setShow(e.target.result,a.fileExt);
+            }
+        })
+    },
+
+    //设置要上传的文件
+    setFiles:function(files){
+        var that = this,fileObjs = [];
+        var len = files.length;
+        for (var i=0;i<len;i++){
+            var fileExt = '',fileSize = '',model = 0;
+            fileExt = files[i].name.substr(files[i].name.indexOf('.') + 1);
+            fileSize = files[i].size;
+            if(!that.checkAlow(fileExt)){
+                that.setError(that.getError(3));
+                continue;
+            }
+            if(!that.checkSize(fileSize)){
+                that.setError(that.getError(4));
+                continue;
+            }
+
+            model = that.cfg.autoSlice && that.cfg.sliceSize <= fileSize ? 2 : 1;
+            var temp = {
+                file:files[i],
+                model:model,
+                fileExt:fileExt,
+                fileSize:fileSize,
+            };
+            that.fileObjs.push(temp);
+        }
+        return true;
+    },
+
     //检查文件是否允许上传
-    checkAlow:function(){
+    checkAlow:function(fileExt){
         var alowStr = this.cfg.alowType.join();
-        if(alowStr.indexOf(this.cfg.fileExt) === -1){
+        if(alowStr.indexOf(fileExt) === -1){
             return false;
         }
         return true;
     },
 
     //检查文件尺寸是否超出
-    checkSize:function(){
+    checkSize:function(fileSize){
         var alowSize = this.cfg.maxSize;
-        var fileSize = this.cfg.fileSize;
         if(!fileSize){
             return 6;
         }
@@ -156,7 +182,7 @@ jQuery.fn.extend({
     },
 
     //设置显示预览图
-    setShow:function(url){
+    setShow:function(url,fileExt){
         if(!url){
             return false;
         }
@@ -164,9 +190,9 @@ jQuery.fn.extend({
         var typeStrImage = 'jpg,jpeg,png,gif';
         var typeStrVideo = 'mp4';
         var html = '';
-        if(typeStrImage.indexOf(this.cfg.fileExt) !== -1){
+        if(typeStrImage.indexOf(fileExt) !== -1){
             html = '<img src="'+ url +'" width="120px" />';
-        }else if(typeStrVideo.indexOf(this.cfg.fileExt) !== -1){
+        }else if(typeStrVideo.indexOf(fileExt) !== -1){
             html = '<video src="'+ url +'" controls height="120">您的浏览器不支持 video 标签。</video>';
         }else{
             html = '该文件类型不支持预览';
@@ -183,7 +209,7 @@ jQuery.fn.extend({
     //上传文件
     doUpload:function(){
         var that = this;
-        var files = that.files;
+        var files = that.fileObjs;
         files.map(function(a){
             if(!a.file.size){
                 that.setError(that.getError(9));return;
@@ -191,7 +217,7 @@ jQuery.fn.extend({
             if(a.model == 1){//普通上传方式
                 that.uploadNormal(a.file);
             }else{//分片上传方式
-                that.uploadSlice(a.file);
+                that.uploadSlice(a.file,a.fileExt);
             }
         })
     },
@@ -222,7 +248,7 @@ jQuery.fn.extend({
     },
 
     //分片上传
-    uploadSlice:function(file){
+    uploadSlice:function(file,fileExt){
         var slices = slices = this.sliceFile(file);
         var that = this;
         var len = Math.ceil(file.size / this.cfg.sliceSize);
@@ -233,7 +259,7 @@ jQuery.fn.extend({
             formData.append('blobNum',item.blobNum)
             formData.append('blobTotal',len);
             formData.append('blobName',blobName);
-            formData.append('suffix',that.cfg.fileExt)
+            formData.append('suffix',fileExt)
             $.ajax({
                 url: that.cfg.sliceUploadUrl,
                 type: 'POST',
@@ -276,6 +302,14 @@ jQuery.fn.extend({
         return that.slices;
     },
 
+    //检查多个文件上传文件个数是否超出
+    checkMulti:function(len){
+        if(len > this.cfg.isMulti){
+            return false;
+        }
+        return true;
+    },
+
     //获取分片名
     getBlobName:function(len,prefix,suffix){
         var hash = ['a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'];
@@ -287,7 +321,7 @@ jQuery.fn.extend({
             var need = parseInt(Math.random() * (60 + 1));
             str += hash[need];
         }
-        str = str + suffix;console.log(str);
+        str = str + suffix;
         return str;
     },
 
@@ -327,6 +361,9 @@ jQuery.fn.extend({
                 break;
             case 10:
                 return "使用分片上传必须设置分片上传地址";
+                break;
+            case 11:
+                return "超出最大上传个数";
                 break;
             default:
                 return "未知错误";
