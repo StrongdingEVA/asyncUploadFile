@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <script src="js/jquery.min.js"></script>
         <script src="js/asyncUploadFile.js"></script>
+        <link rel="stylesheet" href="css/an-skill-bar.css">
         <link rel="stylesheet" href="css/asyncUploadFile.css">
     </head>
     <style>
@@ -27,6 +28,12 @@
             	
             </div>
             <button type="button" id="start">开始</button>
+            <!--<div id="process">-->
+                <!--<div class="processbar html">-->
+                    <!--<div class="filled" data-width="50%"></div>-->
+                    <!--<span class="percent">50%</span>-->
+                <!--</div>-->
+            <!--</div>-->
         </form>
     </body>
     <script>
@@ -43,6 +50,15 @@
                     console.log(1111111,res);
                 }
             });
+            // $('.skillbar').skillbar({
+            //     speed: 1000,
+            // });
+            // setTimeout(function(){
+            //     $('.filled').attr('data-width','90%').animate({width:700});
+            //     // $('.skillbar').skillbar({
+            //     //     speed: 1000,
+            //     // });
+            // },3000)
         })
     </script>
 </html>

@@ -1,0 +1,80 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    width: 800px;
+    margin: 50px auto;
+    font-family: "Open Sans", sans-serif;
+    font-size: 14px;
+}
+
+.process {
+    width: 100%;
+    background-color: #e3e3e3;
+    padding: 30px;
+    display: block;
+    border-radius: 5px;
+    margin: auto;
+}
+
+h2{
+    margin: 20px;
+    text-align: center;
+    font-weight: 700;
+}
+.processbar{width:100%;padding:10px;margin:10px 0;position:relative;display:block;overflow:hidden;height:30px;background-color:#fff;border-radius:5px 0 0 5px}
+.processbar.html .title{background-color:#c96300}
+.processbar.html .filled{background-color:#ff8817}
+.processbar.css .title{background-color:#0f5487}
+.processbar.css .filled{background-color:#177fcb}
+.processbar.js .title{background-color:#f0b109}
+.processbar.js .filled{background-color:#f8ca4d}
+.processbar.php .title{background-color:#3d4670}
+.processbar.php .filled{background-color:#5864a2}
+.processbar.jquery .title{background-color:#064a7a}
+.processbar.jquery .filled{background-color:#0977c3}
+.processbar.sass .title{background-color:#ba437d}
+.processbar.sass .filled{background-color:#cf7aa4}
+.processbar.less .title{background-color:#1f3861}
+.processbar.less .filled{background-color:#31599b}
+.processbar.react .title{background-color:#33c7f0}
+.processbar.react .filled{background-color:#7adbf5}
+.processbar.nodejs .title{background-color:#5e8f35}
+.processbar.nodejs .filled{background-color:#83bf51}
+.processbar.angular .title{background-color:#8f0023}
+.processbar.angular .filled{background-color:#dc0035}
+.processbar.vue .title{background-color:#2f8f67}
+.processbar.vue .filled{background-color:#47c390}
+.processbar.meteor .title{background-color:#cc2b2c}
+.processbar.meteor .filled{background-color:#de6566}
+.processbar.backbone .title{background-color:#005086}
+.processbar.backbone .filled{background-color:#007dd3}
+.processbar.ember .title{background-color:#c63d2d}
+.processbar.ember .filled{background-color:#dc7064}
+.processbar.mysql .title{background-color:#003e58}
+.processbar.mysql .filled{background-color:#0073a5}
+.processbar.python .title{background-color:#295479}
+.processbar.python .filled{background-color:#3d7cb2}
+.processbar.django .title{background-color:#010705}
+.processbar.django .filled{background-color:#0e4731}
+.processbar.agile .title{background-color:#198cb7}
+.processbar.agile .filled{background-color:#37b6e4}
+.processbar.photoshop .title{background-color:#211a56}
+.processbar.photoshop .filled{background-color:#382c90}
+.processbar.illustrator .title{background-color:#572e11}
+.processbar.illustrator .filled{background-color:#98511d}
+.processbar.indesign .title{background-color:#a42b69}
+.processbar.indesign .filled{background-color:#d04c8f}
+.processbar.laravel .title{background-color:#f0280f}
+.processbar.laravel .filled{background-color:#f56856}
+.processbar .title{background-color:rgba(0,0,0,.6);height:30px;width:85px;text-align:center;left:0;color:#f0f0f0;border-radius:5px 0 0 5px}
+.processbar .percent,.processbar .title{padding:5px;position:absolute;top:0;z-index:9}
+.processbar .percent{right:0;color:#000;font-weight:700}
+.processbar .filled{z-index:8;position:absolute;top:0;left:0;background-color:rgba(0,80,80,.3);height:100%;width:0px;border-radius:5px 0 0 5px}

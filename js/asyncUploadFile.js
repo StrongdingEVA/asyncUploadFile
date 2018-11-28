@@ -5,7 +5,7 @@ jQuery.fn.extend({
         this.cfg.filePanel = cfg.filePanel; //文件域选择器
         this.cfg.upField = cfg.upField || "file"; //文件域名称
         this.cfg.autoUpload = cfg.autoUpload == false ? cfg.autoUpload : true; //默认开启自动上传
-        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4"]; //默认允许文件后缀
+        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4","exe"]; //默认允许文件后缀
         this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 100; //默认最大上传尺寸2M
         this.cfg.imgPanel = cfg.imgPanel || ""; //盛放image的容器
         this.cfg.cliText = cfg.cliText || "点击上传"; //未开启自动上传时 生成的按钮的文字
@@ -20,6 +20,14 @@ jQuery.fn.extend({
         this.cfg.model = cfg.model || 1; //文件上传方式 1普通上传 2 分片上传
         this.cfg.callBack = cfg.callBack || {};
         this.cfg.sliceUploadUrl = cfg.sliceUploadUrl || '';
+        this.cfg.showProgress = true;
+        this.cfg.process = {
+            percentage:0,
+            stepMin:5,
+            stepMax:20,
+            stop:98,
+
+        };
 
         this.cfg.status = 1;
         this.cfg.hexList = ['PD9waHA','PHNjcmlwdD4'];
@@ -150,10 +158,10 @@ jQuery.fn.extend({
     checkSize:function(fileSize){
         var alowSize = this.cfg.maxSize;
         if(!fileSize){
-            return 6;
+            return false;
         }
         if(fileSize > alowSize){
-            return 4;
+            return false;
         }
         return true;
     },
@@ -210,20 +218,24 @@ jQuery.fn.extend({
     doUpload:function(){
         var that = this;
         var files = that.fileObjs;
-        files.map(function(a){
-            if(!a.file.size){
-                that.setError(that.getError(9));return;
-            }
-            if(a.model == 1){//普通上传方式
-                that.uploadNormal(a.file);
-            }else{//分片上传方式
-                that.uploadSlice(a.file,a.fileExt);
-            }
-        })
+        if (files.length > 0){
+            files.map(function(a){
+                if(!a.file.size){
+                    that.setError(that.getError(9));return;
+                }
+                if(a.model == 1){//普通上传方式
+                    that.showProcess();//this.intvalProcess();return;
+                    that.uploadNormal(a.file);
+                }else{//分片上传方式
+                    that.uploadSlice(a.file,a.fileExt);
+                }
+            })
+        }
     },
 
     //普通上传
     uploadNormal:function(data){
+        this.intvalProcess();
         var that = this;
         var formData = new FormData();
         formData.append(that.cfg.upField, data);
@@ -240,6 +252,7 @@ jQuery.fn.extend({
             contentType: false,
             processData: false,
             success: function (res) {
+                that.processStep(100);
                 if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
                     that.cfg.callBack(res);
                 }
@@ -323,6 +336,37 @@ jQuery.fn.extend({
         }
         str = str + suffix;
         return str;
+    },
+
+    showProcess:function(){
+        if(this.cfg.showProgress){
+            $(this).after('<div class="process"><div class="processbar html"><div class="filled" data-width="'+ this.cfg.process.percentage +'%"></div><span class="percent">'+ this.cfg.process.percentage +'%</span></div></div>');
+            // $('.filled').attr('data-width','90%').animate({width:700});
+        }
+    },
+
+    intvalProcess:function(){
+        var Max = this.cfg.process.stepMax,Min = this.cfg.process.stepMin,that = this;
+        var t = that.cfg.process.t = setInterval(function(){
+            var rand = parseInt(Math.random() * (Max - Min + 1) + Min);
+            that.cfg.process.percentage += rand;
+            if (that.cfg.process.percentage > that.cfg.process.stop){
+                that.processStep(that.cfg.process.stop);
+                clearInterval(t);
+            }else{
+                that.processStep(that.cfg.process.percentage);
+            }
+        },500);
+    },
+
+    processStep:function(process){
+        var p =  $('.process');
+        var width = parseInt($('#process').find('.processbar').css('width'));
+        p.find('.filled').attr('data-width',process + '%').animate({width:parseInt(width * process / 100)});
+        p.find('.percent').text(process + '%');
+        if(process == 100){
+            clearInterval(this.cfg.process.t);
+        }
     },
 
     //输出错误信息
