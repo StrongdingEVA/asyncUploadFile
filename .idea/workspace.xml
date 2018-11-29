@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ad3e7529-6a90-4b97-b967-b3cb60b5e8db" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/asyncUploadFile.html" beforeDir="false" afterPath="$PROJECT_DIR$/asyncUploadFile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/css/an-skill-bar.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/an-skill-bar.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/asyncUploadFile.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/asyncUploadFile.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sliceUp.php" beforeDir="false" afterPath="$PROJECT_DIR$/sliceUp.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.php" beforeDir="false" afterPath="$PROJECT_DIR$/test.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -32,7 +28,7 @@
           <entry key="html" value="3" />
           <entry key="js" value="7" />
           <entry key="php" value="9" />
-          <entry key="ts" value="1" />
+          <entry key="ts" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
@@ -42,7 +38,7 @@
           <entry key="JavaScript" value="7" />
           <entry key="PHP" value="9" />
           <entry key="PLAIN_TEXT" value="1" />
-          <entry key="TypeScript" value="1" />
+          <entry key="TypeScript" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
@@ -50,16 +46,16 @@
           <entry key="css" value="96" />
           <entry key="hosts" value="10" />
           <entry key="html" value="232" />
-          <entry key="js" value="3175" />
-          <entry key="php" value="645" />
+          <entry key="js" value="3426" />
+          <entry key="php" value="646" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSS" value="96" />
           <entry key="HTML" value="233" />
-          <entry key="JavaScript" value="3174" />
-          <entry key="PHP" value="645" />
+          <entry key="JavaScript" value="3425" />
+          <entry key="PHP" value="646" />
           <entry key="PLAIN_TEXT" value="10" />
         </counts>
       </usages-collector>
@@ -70,22 +66,18 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sliceUp.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="475">
-              <caret line="31" column="14" selection-start-line="31" selection-start-column="14" selection-end-line="31" selection-end-column="14" />
-              <folding>
-                <element signature="n#deleteFileBlob#0;n#Upload#0;n#!!top" />
-              </folding>
+            <state relative-caret-position="375">
+              <caret line="15" column="26" selection-start-line="15" selection-start-column="26" selection-end-line="15" selection-end-column="26" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/asyncUploadFile.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="628">
-              <caret line="394" column="19" selection-start-line="394" selection-start-column="8" selection-end-line="394" selection-end-column="19" />
+            <state relative-caret-position="2760">
+              <caret line="251" column="45" selection-start-line="251" selection-start-column="31" selection-end-line="251" selection-end-column="45" />
               <folding>
-                <element signature="e#1694#2514#0" />
                 <element signature="n#style#0;n#input#0;n#!!top" expanded="true" />
                 <element signature="e#2545#3421#0" />
                 <element signature="e#3454#3890#0" />
@@ -95,7 +87,11 @@
                 <element signature="e#5303#5890#0" />
                 <element signature="e#5940#6490#0" />
                 <element signature="e#6515#6665#0" />
+                <element signature="e#9708#9808#0" />
                 <element signature="e#9866#10452#0" />
+                <element signature="e#10481#10838#0" />
+                <element signature="e#10869#11418#0" />
+                <element signature="e#11454#11813#0" />
                 <element signature="e#11943#12929#0" />
               </folding>
             </state>
@@ -111,10 +107,10 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/asyncUploadFile.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="422">
+            <state relative-caret-position="667">
               <caret line="29" column="56" selection-start-line="29" selection-start-column="56" selection-end-line="29" selection-end-column="56" />
             </state>
           </provider>
@@ -139,6 +135,10 @@
       <find>percent</find>
       <find>getError(3)</find>
       <find>console.log</find>
+      <find>cfg.status</find>
+      <find>\s\.</find>
+      <find>\s\.\s</find>
+      <find>\W\.</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -153,9 +153,9 @@
         <option value="D:/PHPStudy/PHPTutorial/WWW/test.php" />
         <option value="$PROJECT_DIR$/css/an-skill-bar.css" />
         <option value="$PROJECT_DIR$/test.php" />
-        <option value="$PROJECT_DIR$/sliceUp.php" />
-        <option value="$PROJECT_DIR$/js/asyncUploadFile.js" />
         <option value="$PROJECT_DIR$/asyncUploadFile.html" />
+        <option value="$PROJECT_DIR$/js/asyncUploadFile.js" />
+        <option value="$PROJECT_DIR$/sliceUp.php" />
       </list>
     </option>
   </component>
@@ -259,12 +259,12 @@
       <option name="presentableId" value="Default" />
       <updated>1543373811138</updated>
       <workItem from="1543373812445" duration="18272000" />
-      <workItem from="1543455038314" duration="20327000" />
+      <workItem from="1543455038314" duration="23592000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="38599000" />
+    <option name="totallyTimeSpent" value="41864000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
@@ -363,22 +363,32 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/asyncUploadFile.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="667">
+          <caret line="29" column="56" selection-start-line="29" selection-start-column="56" selection-end-line="29" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.dom.d.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="6230" column="4" selection-start-line="6230" selection-start-column="4" selection-end-line="6230" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/sliceUp.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="475">
-          <caret line="31" column="14" selection-start-line="31" selection-start-column="14" selection-end-line="31" selection-end-column="14" />
-          <folding>
-            <element signature="n#deleteFileBlob#0;n#Upload#0;n#!!top" />
-          </folding>
+        <state relative-caret-position="375">
+          <caret line="15" column="26" selection-start-line="15" selection-start-column="26" selection-end-line="15" selection-end-column="26" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/asyncUploadFile.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="628">
-          <caret line="394" column="19" selection-start-line="394" selection-start-column="8" selection-end-line="394" selection-end-column="19" />
+        <state relative-caret-position="2760">
+          <caret line="251" column="45" selection-start-line="251" selection-start-column="31" selection-end-line="251" selection-end-column="45" />
           <folding>
-            <element signature="e#1694#2514#0" />
             <element signature="n#style#0;n#input#0;n#!!top" expanded="true" />
             <element signature="e#2545#3421#0" />
             <element signature="e#3454#3890#0" />
@@ -388,16 +398,13 @@
             <element signature="e#5303#5890#0" />
             <element signature="e#5940#6490#0" />
             <element signature="e#6515#6665#0" />
+            <element signature="e#9708#9808#0" />
             <element signature="e#9866#10452#0" />
+            <element signature="e#10481#10838#0" />
+            <element signature="e#10869#11418#0" />
+            <element signature="e#11454#11813#0" />
             <element signature="e#11943#12929#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/asyncUploadFile.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="422">
-          <caret line="29" column="56" selection-start-line="29" selection-start-column="56" selection-end-line="29" selection-end-column="56" />
         </state>
       </provider>
     </entry>

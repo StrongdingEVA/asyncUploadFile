@@ -223,23 +223,28 @@ jQuery.fn.extend({
     //上传文件
     doUpload:function(){
         var that = this,files = that.fileObjs,processBarName = '';
-        if (files.length > 0){
-            files.map(function(a,b){
-                if(a.status == 0){
-                    processBarName = 'process_bar_' + b;
-                    that.cfg.process.list[processBarName] = {'t':null,'percentage':0};
-                    if(!a.file.size){
-                        that.setError(that.getError(9));return;
+        if(that.cfg.status){
+            if (files.length > 0){
+                files.map(function(a,b){
+                    if(a.status == 0){
+                        that.cfg.status = 0;
+                        processBarName = 'process_bar_' + b;
+                        that.cfg.process.list[processBarName] = {'t':null,'percentage':0};
+                        if(!a.file.size){
+                            that.setError(that.getError(9));return;
+                        }
+                        that.showProcess(processBarName,a.file.name);
+                        if(a.model == 1){//普通上传方式
+                            that.uploadNormal(a.file,processBarName);
+                        }else{//分片上传方式
+                            that.uploadSlice(a.file,a.fileExt,processBarName);
+                        }
                     }
-                    that.showProcess(processBarName,a.file.name);
-                    if(a.model == 1){//普通上传方式
-                        that.uploadNormal(a.file,processBarName);
-                    }else{//分片上传方式
-                        that.uploadSlice(a.file,a.fileExt,processBarName);
-                    }
-                }
-                that.fileObjs[b].status = 1;
-            })
+                    that.fileObjs[b].status = 1;
+                })
+            }
+        }else{
+            this.setError(this.getError(12));return;
         }
     },
 
@@ -262,6 +267,7 @@ jQuery.fn.extend({
             contentType: false,
             processData: false,
             success: function (res) {
+                that.cfg.status = 1;
                 that.processStep(processBarName,100);
                 if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
                     that.cfg.callBack(res);
@@ -273,7 +279,7 @@ jQuery.fn.extend({
     //分片上传
     uploadSlice:function(file,fileExt,processBarName){
         this.slices.length = 0;
-        var that = this,slices = that.sliceFile(file),len = Math.ceil(file.size / this.cfg.sliceSize),blobName = that.getBlobName(8);
+        var that = this,slices = that.sliceFile(file),len = Math.ceil(file.size / this.cfg.sliceSize),blobName = that.getBlobName(8),j = 0;
         for (var i = 0;i < len;i++){
             var item = slices[i];
             var formData = new FormData();
@@ -295,13 +301,13 @@ jQuery.fn.extend({
                 contentType: false,
                 processData: false,
                 success: function (res) {
-                    if(res.code == 1){
-                        that.cfg.process.list[processBarName].percentage = parseFloat(((i / len) * 100).toFixed(3));
+                    if(res.code == 1 || res.code == 2){
+                        j++;
+                        that.cfg.process.list[processBarName].percentage = parseFloat(((j / len) * 100).toFixed(3));
                         that.processStep(processBarName,that.cfg.process.list[processBarName].percentage);
                     }
                     if(res.code == 2){
-                        that.cfg.process.list[processBarName].percentage = parseFloat(((i / len) * 100).toFixed(3));
-                        that.processStep(processBarName,that.cfg.process.list[processBarName].percentage);
+                        that.cfg.status = 1;
                         if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
                             that.cfg.callBack(res);
                         }
@@ -398,19 +404,19 @@ jQuery.fn.extend({
         switch (k){
             case 1:
                 return "未设置或找不到" + this.cfg.filePanel + '元素';
-            break;
+                break;
             case 2:
                 return "未设置文件文件上传路径";
-            break;
+                break;
             case 3:
                 return "文件类型错误";
-            break;
+                break;
             case 4:
                 return "文件大小超出";
-            break;
+                break;
             case 5:
                 return "读取文件流失败";
-            break;
+                break;
             case 6:
                 return "文件大小为零";
                 break;
@@ -428,6 +434,9 @@ jQuery.fn.extend({
                 break;
             case 11:
                 return "超出最大上传个数";
+                break;
+            case 12:
+                return "文件正在上传中，请稍候";
                 break;
             default:
                 return "未知错误";
