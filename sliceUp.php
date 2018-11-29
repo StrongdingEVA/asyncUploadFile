@@ -21,12 +21,17 @@ class Upload{
 
     //判断是否是最后一块，如果是则进行文件合成并且删除文件块
     private function fileMerge(){
-        $blob = '';
-        for($i=1; $i<= $this->totalBlobNum; $i++){
-            $blob .= file_get_contents($this->filepath.'/'. $this->fileName.'__'.$i);
+        if(!file_exists($this->filepath.'/'. $this->fileName . $this->suffix)){
+            ini_set('memory_limit','500M');
+            $blob = '';
+            for($i=1; $i<= $this->totalBlobNum; $i++){
+                $blob .= file_get_contents($this->filepath.'/'. $this->fileName.'__'.$i);
+            }
+            file_put_contents($this->filepath.'/'. $this->fileName . $this->suffix,$blob);
+            $this->deleteFileBlob();
+        }else{
+            $this->deleteFileBlob();
         }
-        file_put_contents($this->filepath.'/'. $this->fileName . $this->suffix,$blob);
-        $this->deleteFileBlob();
     }
 
     private function checkBlock(){
@@ -54,12 +59,17 @@ class Upload{
 
     //API返回数据
     public function apiReturn(){
+        $data['code'] = 0;
         if($this->blobNum == $this->totalBlobNum){
-            if(file_exists($this->filepath.'/'. $this->fileName)){
+//            if(file_exists($this->filepath.'/'. $this->fileName . $this->suffix)){
+            //这里不判断合并后的文件是否存在，因为在所有分包请求都到达服务器的情况下
+            //比如说有30个分包  请求29和请求30同时到达 这时候请求29判断所有分包都已经
+            //到达 开始合并分包 然而请求30在这里判断合并后的文件是否存在会出现问题，（
+            //因为合并过程可能会比较长,判断可能会返回false的情况)
                 $data['code'] = 2;
                 $data['msg'] = 'success';
-                $data['file_path'] = 'http://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['DOCUMENT_URI']).str_replace('.','',$this->filepath).'/'. $this->fileName;
-            }
+                $data['file_path'] = 'http://'.$_SERVER['HTTP_HOST'] . str_replace('.','',$this->filepath).'/'. $this->fileName . $this->suffix;
+//            }
         }else{
             if(file_exists($this->filepath.'/'. $this->fileName.'__'.$this->blobNum)){
                 $data['code'] = 1;

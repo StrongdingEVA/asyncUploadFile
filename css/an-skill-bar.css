@@ -75,6 +75,6 @@ h2{
 .processbar.laravel .title{background-color:#f0280f}
 .processbar.laravel .filled{background-color:#f56856}
 .processbar .title{background-color:rgba(0,0,0,.6);height:30px;width:85px;text-align:center;left:0;color:#f0f0f0;border-radius:5px 0 0 5px}
-.processbar .percent,.processbar .title{padding:5px;position:absolute;top:0;z-index:9}
-.processbar .percent{right:0;color:#000;font-weight:700}
+.processbar .fname,.processbar .title{padding:5px;position:absolute;top:0;z-index:9}
+.processbar .fname{right:0;color:#000;font-weight:700;width: 100%;display: inline-block;text-align: center}
 .processbar .filled{z-index:8;position:absolute;top:0;left:0;background-color:rgba(0,80,80,.3);height:100%;width:0px;border-radius:5px 0 0 5px}

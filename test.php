@@ -1,3 +1,4 @@
 <?php
-    echo 1111;exit;
+    $str = 'upload/gRKJV7D2.exe';
+    var_dump(file_exists($str));
 ?>

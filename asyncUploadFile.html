@@ -28,12 +28,6 @@
             	
             </div>
             <button type="button" id="start">开始</button>
-            <!--<div id="process">-->
-                <!--<div class="processbar html">-->
-                    <!--<div class="filled" data-width="50%"></div>-->
-                    <!--<span class="percent">50%</span>-->
-                <!--</div>-->
-            <!--</div>-->
         </form>
     </body>
     <script>
@@ -44,21 +38,13 @@
                 cliBtn:'#start',
                 upUrl:'/test.php',
                 autoSlice:true,
+                maxSize:1024 * 1024 * 2000,
                 sliceUploadUrl:'/sliceUp.php',
                 isMulti:3,
                 callBack:function(res){
-                    console.log(1111111,res);
+                    console.log(res);
                 }
             });
-            // $('.skillbar').skillbar({
-            //     speed: 1000,
-            // });
-            // setTimeout(function(){
-            //     $('.filled').attr('data-width','90%').animate({width:700});
-            //     // $('.skillbar').skillbar({
-            //     //     speed: 1000,
-            //     // });
-            // },3000)
         })
     </script>
 </html>
