@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="ad3e7529-6a90-4b97-b967-b3cb60b5e8db" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/asyncUploadFile.html" beforeDir="false" afterPath="$PROJECT_DIR$/asyncUploadFile.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/asyncUploadFile.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/asyncUploadFile.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sliceUp.php" beforeDir="false" afterPath="$PROJECT_DIR$/sliceUp.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -15,29 +17,34 @@
     <session id="2086322536">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="1" />
-          <entry key="project.open.time.0" value="1" />
+          <entry key="project.closed" value="2" />
+          <entry key="project.open.time.0" value="2" />
           <entry key="project.open.time.1" value="1" />
-          <entry key="project.opened" value="2" />
+          <entry key="project.opened" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
+          <entry key="bKcbhYaUtxt" value="1" />
           <entry key="css" value="6" />
+          <entry key="e95ZohoTtxt" value="1" />
           <entry key="hosts" value="1" />
-          <entry key="html" value="3" />
-          <entry key="js" value="7" />
-          <entry key="php" value="9" />
+          <entry key="html" value="4" />
+          <entry key="ini" value="1" />
+          <entry key="js" value="8" />
+          <entry key="php" value="11" />
           <entry key="ts" value="2" />
+          <entry key="txt" value="10" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="CSS" value="6" />
-          <entry key="HTML" value="3" />
-          <entry key="JavaScript" value="7" />
-          <entry key="PHP" value="9" />
-          <entry key="PLAIN_TEXT" value="1" />
+          <entry key="HTML" value="4" />
+          <entry key="Ini" value="1" />
+          <entry key="JavaScript" value="8" />
+          <entry key="PHP" value="11" />
+          <entry key="PLAIN_TEXT" value="13" />
           <entry key="TypeScript" value="2" />
         </counts>
       </usages-collector>
@@ -45,17 +52,19 @@
         <counts>
           <entry key="css" value="96" />
           <entry key="hosts" value="10" />
-          <entry key="html" value="232" />
-          <entry key="js" value="3426" />
-          <entry key="php" value="646" />
+          <entry key="html" value="236" />
+          <entry key="ini" value="5" />
+          <entry key="js" value="4905" />
+          <entry key="php" value="1245" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CSS" value="96" />
-          <entry key="HTML" value="233" />
-          <entry key="JavaScript" value="3425" />
-          <entry key="PHP" value="646" />
+          <entry key="HTML" value="237" />
+          <entry key="Ini" value="5" />
+          <entry key="JavaScript" value="4904" />
+          <entry key="PHP" value="1245" />
           <entry key="PLAIN_TEXT" value="10" />
         </counts>
       </usages-collector>
@@ -66,8 +75,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/sliceUp.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="15" column="26" selection-start-line="15" selection-start-column="26" selection-end-line="15" selection-end-column="26" />
+            <state relative-caret-position="621">
+              <caret line="39" column="9" selection-start-line="39" selection-start-column="9" selection-end-line="39" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -75,34 +84,24 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/asyncUploadFile.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2760">
-              <caret line="251" column="45" selection-start-line="251" selection-start-column="31" selection-end-line="251" selection-end-column="45" />
+            <state relative-caret-position="283">
+              <caret line="103" column="24" selection-start-line="103" selection-start-column="24" selection-end-line="103" selection-end-column="24" />
               <folding>
                 <element signature="n#style#0;n#input#0;n#!!top" expanded="true" />
-                <element signature="e#2545#3421#0" />
-                <element signature="e#3454#3890#0" />
-                <element signature="e#3936#4798#0" />
-                <element signature="e#4849#5006#0" />
-                <element signature="e#5058#5255#0" />
-                <element signature="e#5303#5890#0" />
-                <element signature="e#5940#6490#0" />
-                <element signature="e#6515#6665#0" />
-                <element signature="e#9708#9808#0" />
-                <element signature="e#9866#10452#0" />
-                <element signature="e#10481#10838#0" />
-                <element signature="e#10869#11418#0" />
-                <element signature="e#11454#11813#0" />
-                <element signature="e#11943#12929#0" />
+                <element signature="e#4091#5095#0" />
+                <element signature="e#4811#5019#0" />
+                <element signature="e#5146#5303#0" />
+                <element signature="e#5355#5552#0" />
+                <element signature="e#5600#6187#0" />
+                <element signature="e#8378#9173#0" />
+                <element signature="e#11109#11140#0" />
+                <element signature="e#11132#11680#0" />
+                <element signature="e#11756#12342#0" />
+                <element signature="e#12383#12658#0" />
+                <element signature="e#12703#13350#0" />
+                <element signature="e#13401#13853#0" />
+                <element signature="e#13983#15071#0" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/css/an-skill-bar.css">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="744">
-              <caret line="70" column="31" selection-start-line="70" selection-start-column="31" selection-end-line="70" selection-end-column="31" />
             </state>
           </provider>
         </entry>
@@ -110,8 +109,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/asyncUploadFile.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="667">
-              <caret line="29" column="56" selection-start-line="29" selection-start-column="56" selection-end-line="29" selection-end-column="56" />
+            <state relative-caret-position="469">
+              <caret line="36" column="31" selection-start-line="36" selection-start-column="31" selection-end-line="36" selection-end-column="31" />
             </state>
           </provider>
         </entry>
@@ -134,15 +133,21 @@
       <find>setShow</find>
       <find>percent</find>
       <find>getError(3)</find>
-      <find>console.log</find>
       <find>cfg.status</find>
       <find>\s\.</find>
       <find>\s\.\s</find>
       <find>\W\.</find>
+      <find>sliceFile</find>
+      <find>upload</find>
+      <find>console.log</find>
+      <find>doUpload</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="mock:///Dummy.txt" root0="SKIP_INSPECTION" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -153,9 +158,10 @@
         <option value="D:/PHPStudy/PHPTutorial/WWW/test.php" />
         <option value="$PROJECT_DIR$/css/an-skill-bar.css" />
         <option value="$PROJECT_DIR$/test.php" />
+        <option value="D:/PHPStudy/PHPTutorial/php/php-7.1.13-nts/php.ini" />
         <option value="$PROJECT_DIR$/asyncUploadFile.html" />
-        <option value="$PROJECT_DIR$/js/asyncUploadFile.js" />
         <option value="$PROJECT_DIR$/sliceUp.php" />
+        <option value="$PROJECT_DIR$/js/asyncUploadFile.js" />
       </list>
     </option>
   </component>
@@ -205,7 +211,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -227,6 +232,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -259,20 +265,22 @@
       <option name="presentableId" value="Default" />
       <updated>1543373811138</updated>
       <workItem from="1543373812445" duration="18272000" />
-      <workItem from="1543455038314" duration="23592000" />
+      <workItem from="1543455038314" duration="24413000" />
+      <workItem from="1543542628339" duration="15245000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="41864000" />
+    <option name="totallyTimeSpent" value="57930000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1066" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25266525" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2553305" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Command Line Tools Console" weight="0.32939914" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
@@ -342,13 +350,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/css/an-skill-bar.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="744">
-          <caret line="70" column="31" selection-start-line="70" selection-start-column="31" selection-end-line="70" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.es5.d.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="325">
@@ -363,13 +364,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/asyncUploadFile.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="667">
-          <caret line="29" column="56" selection-start-line="29" selection-start-column="56" selection-end-line="29" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external/lib.dom.d.ts">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="302">
@@ -377,33 +371,137 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://D:/PHPStudy/PHPTutorial/php/php-7.1.13-nts/php.ini">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="437">
+          <caret line="670" column="18" selection-start-line="670" selection-start-column="18" selection-end-line="670" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard/standard_4.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="249" column="9" selection-start-line="249" selection-start-column="9" selection-end-line="249" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$APPLICATION_HOME_DIR$/plugins/php/lib/php.jar!/stubs/standard/standard_5.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="301">
+          <caret line="1106" column="13" lean-forward="true" selection-start-line="1106" selection-start-column="13" selection-end-line="1106" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/bKcbhYaUtxt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="262">
+          <caret line="35" column="5" selection-start-line="35" selection-start-column="5" selection-end-line="35" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/e95ZohoTtxt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="276">
+          <caret line="12" lean-forward="true" selection-start-line="12" selection-end-line="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Bez9KYQB.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="607">
+          <caret line="50" column="5" lean-forward="true" selection-start-line="50" selection-start-column="5" selection-end-line="50" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/5HblukiN.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="262">
+          <caret line="42" column="46" selection-start-line="42" selection-start-column="46" selection-end-line="42" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/dl5QrfGG.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/css/an-skill-bar.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="523">
+          <caret line="70" column="31" selection-start-line="70" selection-start-column="31" selection-end-line="70" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/a0STJzIb.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="33" column="58" selection-start-line="32" selection-start-column="3" selection-end-line="33" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/UB0k2qsH.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="722">
+          <caret line="57" column="20" selection-start-line="47" selection-start-column="12" selection-end-line="57" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/asyncUploadFile.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="469">
+          <caret line="36" column="31" selection-start-line="36" selection-start-column="31" selection-end-line="36" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AgdwRv4P.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="653">
+          <caret line="54" column="55" lean-forward="true" selection-start-line="54" selection-start-column="46" selection-end-line="54" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wB9mSoZf.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="33" column="57" selection-start-line="33" selection-start-column="57" selection-end-line="33" selection-end-column="57" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/OuDfY8Cc.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/2V1SdFb3.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lDkzqnxD.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-543" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/sliceUp.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="15" column="26" selection-start-line="15" selection-start-column="26" selection-end-line="15" selection-end-column="26" />
+        <state relative-caret-position="621">
+          <caret line="39" column="9" selection-start-line="39" selection-start-column="9" selection-end-line="39" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/asyncUploadFile.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2760">
-          <caret line="251" column="45" selection-start-line="251" selection-start-column="31" selection-end-line="251" selection-end-column="45" />
+        <state relative-caret-position="283">
+          <caret line="103" column="24" selection-start-line="103" selection-start-column="24" selection-end-line="103" selection-end-column="24" />
           <folding>
             <element signature="n#style#0;n#input#0;n#!!top" expanded="true" />
-            <element signature="e#2545#3421#0" />
-            <element signature="e#3454#3890#0" />
-            <element signature="e#3936#4798#0" />
-            <element signature="e#4849#5006#0" />
-            <element signature="e#5058#5255#0" />
-            <element signature="e#5303#5890#0" />
-            <element signature="e#5940#6490#0" />
-            <element signature="e#6515#6665#0" />
-            <element signature="e#9708#9808#0" />
-            <element signature="e#9866#10452#0" />
-            <element signature="e#10481#10838#0" />
-            <element signature="e#10869#11418#0" />
-            <element signature="e#11454#11813#0" />
-            <element signature="e#11943#12929#0" />
+            <element signature="e#4091#5095#0" />
+            <element signature="e#4811#5019#0" />
+            <element signature="e#5146#5303#0" />
+            <element signature="e#5355#5552#0" />
+            <element signature="e#5600#6187#0" />
+            <element signature="e#8378#9173#0" />
+            <element signature="e#11109#11140#0" />
+            <element signature="e#11132#11680#0" />
+            <element signature="e#11756#12342#0" />
+            <element signature="e#12383#12658#0" />
+            <element signature="e#12703#13350#0" />
+            <element signature="e#13401#13853#0" />
+            <element signature="e#13983#15071#0" />
           </folding>
         </state>
       </provider>

@@ -34,7 +34,7 @@
         $(function(){
             $("#img").asyncUpload({
                 filePanel:'#fileDiv',
-                autoUpload:false,
+                autoUpload:true,
                 cliBtn:'#start',
                 upUrl:'/test.php',
                 autoSlice:true,
@@ -42,7 +42,7 @@
                 sliceUploadUrl:'/sliceUp.php',
                 isMulti:3,
                 callBack:function(res){
-                    console.log(res);
+                    // console.log(res);
                 }
             });
         })

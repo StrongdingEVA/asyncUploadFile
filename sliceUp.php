@@ -5,6 +5,7 @@ class Upload{
     private $blobNum; //第几个文件块
     private $totalBlobNum; //文件块总数
     private $fileName; //文件名
+    private $log;
 
     public function __construct($tmpPath,$blobNum,$totalBlobNum,$fileName,$suffix){
         $this->tmpPath =  $tmpPath;
@@ -12,9 +13,11 @@ class Upload{
         $this->totalBlobNum =  $totalBlobNum;
         $this->fileName =  $fileName;
         $this->suffix = $suffix ? '.' . $suffix : '.temp';
-
         $this->moveFile();
-        if($this->checkBlock()){
+        $this->setLog("移动文件完成");
+        $res = $this->checkBlock();
+        $this->setLog("检查块是否完全:" . $res);
+        if($res){
             $this->fileMerge();
         }
     }
@@ -22,15 +25,18 @@ class Upload{
     //判断是否是最后一块，如果是则进行文件合成并且删除文件块
     private function fileMerge(){
         if(!file_exists($this->filepath.'/'. $this->fileName . $this->suffix)){
-            ini_set('memory_limit','500M');
+            $this->setLog("合并文件");
             $blob = '';
+            ini_set('memory_limit','500M');
             for($i=1; $i<= $this->totalBlobNum; $i++){
                 $blob .= file_get_contents($this->filepath.'/'. $this->fileName.'__'.$i);
             }
             file_put_contents($this->filepath.'/'. $this->fileName . $this->suffix,$blob);
             $this->deleteFileBlob();
+            $this->setLog("合并文件之后的删除文件");
         }else{
             $this->deleteFileBlob();
+            $this->setLog("文件早已经合并完成了，删除文件");
         }
     }
 
@@ -60,6 +66,7 @@ class Upload{
     //API返回数据
     public function apiReturn(){
         $data['code'] = 0;
+        $data['nowBlob'] = $this->blobNum;
         if($this->blobNum == $this->totalBlobNum){
 //            if(file_exists($this->filepath.'/'. $this->fileName . $this->suffix)){
             //这里不判断合并后的文件是否存在，因为在所有分包请求都到达服务器的情况下
@@ -78,7 +85,7 @@ class Upload{
             }
         }
         header('Content-type: application/json');
-        echo json_encode($data);
+        echo json_encode($data);exit;
     }
 
     //建立上传文件夹
@@ -87,9 +94,22 @@ class Upload{
             return mkdir($this->filepath,755,true);
         }
     }
-}
 
+    private function setLog($dec){
+        $this->log[] = "动作：$dec|文件块：$this->blobNum|time:{$this->getMict()}";
+    }
+
+    public function writeLog(){
+        file_put_contents($this->fileName . '.txt',print_r($this->log,1),FILE_APPEND);
+    }
+
+    private function getMict(){
+        list($time1,$time2) = explode(' ',microtime());
+        return $time2 . '---' . $time1;
+    }
+}
 //实例化并获取系统变量传参
 $upload = new Upload($_FILES['file']['tmp_name'],$_POST['blobNum'],$_POST['blobTotal'],$_POST['blobName'],$_POST['suffix']);
 //调用方法，返回结果
+$upload->writeLog();
 $upload->apiReturn();
