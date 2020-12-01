@@ -5,7 +5,9 @@ class Upload{
     private $blobNum; //第几个文件块
     private $totalBlobNum; //文件块总数
     private $fileName; //文件名
-    private $log;
+    private $suffix; //文件后缀名
+    private $code = 0;
+    private $evn = 'Linux'; //Linux WIN
 
     public function __construct($tmpPath,$blobNum,$totalBlobNum,$fileName,$suffix){
         $this->tmpPath =  $tmpPath;
@@ -13,78 +15,52 @@ class Upload{
         $this->totalBlobNum =  $totalBlobNum;
         $this->fileName =  $fileName;
         $this->suffix = $suffix ? '.' . $suffix : '.temp';
+
+        $this->init();
+    }
+
+    private function init(){
+        $this->checkEnv();
+
+        $this->uploadFlag();
         $this->moveFile();
-        $this->setLog("移动文件完成");
-        $res = $this->checkBlock();
-        $this->setLog("检查块是否完全:" . $res);
-        if($res){
-            $this->fileMerge();
-        }
+        $this->modifyUploadFlag();
     }
 
     //判断是否是最后一块，如果是则进行文件合成并且删除文件块
     private function fileMerge(){
-        if(!file_exists($this->filepath.'/'. $this->fileName . $this->suffix)){
-            $this->setLog("合并文件");
-            $blob = '';
-            ini_set('memory_limit','500M');
-            for($i=1; $i<= $this->totalBlobNum; $i++){
-                $blob .= file_get_contents($this->filepath.'/'. $this->fileName.'__'.$i);
-            }
-            file_put_contents($this->filepath.'/'. $this->fileName . $this->suffix,$blob);
+        $mergeFileName = $this->getAbsolutePath() . DIRECTORY_SEPARATOR . $this->fileName . $this->suffix;
+        if(!file_exists($mergeFileName)){
+            $cmd = $this->getMergeCommand();
+//            echo $cmd;exit();
+            exec($cmd);
             $this->deleteFileBlob();
-            $this->setLog("合并文件之后的删除文件");
-        }else{
-            $this->deleteFileBlob();
-            $this->setLog("文件早已经合并完成了，删除文件");
         }
-    }
-
-    private function checkBlock(){
-        for($i=1; $i<= $this->totalBlobNum; $i++){
-            if(!file_exists($this->filepath.'/'. $this->fileName.'__'.$i)){
-                return false;
-            }
-        }
-        return true;
     }
 
     //删除文件块
     private function deleteFileBlob(){
-        for($i=1; $i<= $this->totalBlobNum; $i++){
-            @unlink($this->filepath.'/'. $this->fileName.'__'.$i);
-        }
+        exec($this->getDelCommand());
     }
 
     //移动文件
     private function moveFile(){
         $this->touchDir();
-        $filename = $this->filepath.'/'. $this->fileName.'__'.$this->blobNum;
-        move_uploaded_file($this->tmpPath,$filename);
+        move_uploaded_file($this->tmpPath,$this->getBlobName($this->blobNum));
     }
 
     //API返回数据
     public function apiReturn(){
-        $data['code'] = 0;
+        $data['code'] = $this->code;
         $data['nowBlob'] = $this->blobNum;
-        if($this->blobNum == $this->totalBlobNum){
-//            if(file_exists($this->filepath.'/'. $this->fileName . $this->suffix)){
-            //这里不判断合并后的文件是否存在，因为在所有分包请求都到达服务器的情况下
-            //比如说有30个分包  请求29和请求30同时到达 这时候请求29判断所有分包都已经
-            //到达 开始合并分包 然而请求30在这里判断合并后的文件是否存在会出现问题，（
-            //因为合并过程可能会比较长,判断可能会返回false的情况)
-                $data['code'] = 2;
-                $data['msg'] = 'success';
-                $data['file_path'] = 'http://'.$_SERVER['HTTP_HOST'] . str_replace('.','',$this->filepath).'/'. $this->fileName . $this->suffix;
-//            }
+        if($this->code == 2){
+            $data['msg'] = 'success';
+            $data['file_path'] = 'http://'.$_SERVER['HTTP_HOST'] . str_replace('.','',$this->filepath) . DIRECTORY_SEPARATOR . $this->fileName . $this->suffix;
         }else{
-            if(file_exists($this->filepath.'/'. $this->fileName.'__'.$this->blobNum)){
-                $data['code'] = 1;
-                $data['msg'] = 'waiting for all';
-                $data['file_path'] = '';
-            }
+            $data['msg'] = 'waiting for all';
+            $data['file_path'] = '';
         }
-        header('Content-type: application/json');
+        header('Content-type: application/json;charset=utf-8');
         echo json_encode($data);exit;
     }
 
@@ -95,21 +71,92 @@ class Upload{
         }
     }
 
-    private function setLog($dec){
-        $this->log[] = "动作：$dec|文件块：$this->blobNum|time:{$this->getMict()}";
+    private function getBlobName($blobNum) {
+        return $this->getAbsolutePath() . DIRECTORY_SEPARATOR . $this->fileName . '__' . $blobNum;
     }
 
-    public function writeLog(){
-        file_put_contents($this->fileName . '.txt',print_r($this->log,1),FILE_APPEND);
+    private function getAbsolutePath(){
+        return __DIR__ . DIRECTORY_SEPARATOR . trim($this->filepath,'./');
     }
 
-    private function getMict(){
-        list($time1,$time2) = explode(' ',microtime());
-        return $time2 . '---' . $time1;
+    private function uploadFlag(){
+        $flagFileName = $this->getFlagFileName();
+
+        if (!file_exists($flagFileName)) {
+            $handle = fopen($flagFileName,'w+');
+            flock($handle,LOCK_EX);
+            fwrite($handle,intval($this->totalBlobNum));
+        }else{
+            $handle = fopen($flagFileName,'r+');
+            flock($handle,LOCK_EX);
+        }
+        fclose($handle);
+    }
+
+    private function modifyUploadFlag() {
+        $flagFileName = $this->getFlagFileName();
+        $flag = intval(file_get_contents($flagFileName));
+
+        $handle = fopen($flagFileName,'w+');
+        flock($handle,LOCK_EX);
+
+        $flag--;
+        if ($flag == 0) {
+            $this->fileMerge();
+            $this->code = 2;
+        }else{
+            fwrite($handle,$flag);
+        }
+        fclose($handle);
+    }
+
+    private function getFlagFileName() {
+        return $this->getAbsolutePath() . DIRECTORY_SEPARATOR . $this->fileName . '.flag';
+    }
+
+    private function checkEnv(){
+        $this->evn = PHP_OS;
+    }
+
+    private function getDelCommand(){
+        if ($this->evn == 'Linux') {
+            $cmd = 'rm -f ';
+        }else{
+            $cmd = 'del ';
+        }
+        for($i = 1; $i <= $this->totalBlobNum; $i++){
+            $cmd .= $this->getBlobName($i) . ' ';
+        }
+        return rtrim($cmd,' ');
+    }
+
+    private function getMergeCommand(){
+        $mergeFileName = $this->getAbsolutePath() . DIRECTORY_SEPARATOR . $this->fileName . $this->suffix;
+        if ($this->evn == 'Linux') {
+            $cmd = 'cat ';
+            for($i = 1; $i <= $this->totalBlobNum; $i++){
+                $blobName = $this->getBlobName($i);
+                $cmd .= $blobName . ' ';
+            }
+            $cmd .= '>' . $mergeFileName;
+        }else{
+            $cmd = 'copy /B ';
+            for($i = 1; $i <= $this->totalBlobNum; $i++){
+                $blobName = $this->getBlobName($i);
+                $cmd .= $blobName . '+';
+            }
+            $cmd = rtrim($cmd,'+') . ' ' . $mergeFileName;
+        }
+        return $cmd;
+    }
+
+    public function __destruct()
+    {
+        //@unlink($this->getFlagFileName());
     }
 }
+
 //实例化并获取系统变量传参
 $upload = new Upload($_FILES['file']['tmp_name'],$_POST['blobNum'],$_POST['blobTotal'],$_POST['blobName'],$_POST['suffix']);
 //调用方法，返回结果
-$upload->writeLog();
 $upload->apiReturn();

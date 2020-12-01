@@ -5,7 +5,7 @@ jQuery.fn.extend({
         this.cfg.filePanel = cfg.filePanel; //文件域选择器
         this.cfg.upField = cfg.upField || "file"; //文件域名称
         this.cfg.autoUpload = cfg.autoUpload == false ? cfg.autoUpload : true; //默认开启自动上传
-        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4","exe","zip"]; //默认允许文件后缀
+        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4","exe","zip","gz"]; //默认允许文件后缀
         this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 100; //默认最大上传尺寸2M
         this.cfg.imgPanel = cfg.imgPanel || ""; //盛放image的容器
         this.cfg.cliText = cfg.cliText || "点击上传"; //未开启自动上传时 生成的按钮的文字
@@ -15,8 +15,8 @@ jQuery.fn.extend({
         this.cfg.isMulti = cfg.isMulti || false;
 
         this.cfg.autoSlice = cfg.autoSlice == false ? cfg.autoSlice : true;
-        this.cfg.modelLimt = 1024 * 1024 * 20; //文件大于这个尺寸使用分片上传
-        this.cfg.sliceSize = 1024 * 1024 * 20; //每片大小
+        this.cfg.modelLimt = cfg.modelLimt || 1024 * 1024 * 20; //文件大于这个尺寸使用分片上传
+        this.cfg.sliceSize = cfg.sliceSize || 1024 * 1024 * 20; //每片大小
         this.cfg.model = cfg.model || 1; //文件上传方式 1普通上传 2 分片上传
         this.cfg.callBack = cfg.callBack || {};
         this.cfg.sliceUploadUrl = cfg.sliceUploadUrl || '';
@@ -261,7 +261,7 @@ jQuery.fn.extend({
 
     //普通上传
     uploadNormal:function(data,processBarName){
-        this.intvalProcess(processBarName);
+        this.intValProcess(processBarName);
         var that = this;
         var formData = new FormData();
         formData.append(that.cfg.upField, data);
@@ -292,8 +292,9 @@ jQuery.fn.extend({
         var that = this,len = Math.ceil(fileInfo.file.size / this.cfg.sliceSize),blobName = that.getBlobName(8),j = 0,i = 0,t = 0,slices = [];
         that.sliceFile(fileInfo.file);
         slices = that.slices[fileInfo.file.name].blobs;
-        t = setInterval(function(){
-            var item = slices[i],formData = new FormData();
+        for (var i = 0;i < len;i++){
+            var item = slices[i];
+            var formData = new FormData();
             formData.append(that.cfg.upField, item.blob);
             formData.append('blobNum',item.blobNum);
             formData.append('blobTotal',len);
@@ -313,65 +314,21 @@ jQuery.fn.extend({
                 processData: false,
                 // async:false,
                 success: function (res) {
-                    if(res.code == 1 || res.code == 2){
+                    if(res.code >= 0){
                         j++;
                         that.cfg.process.list[processBarName].percentage = parseFloat(((j / len) * 100).toFixed(3));
-                        console.log(j,that.cfg.process.list[processBarName].percentage)
                         that.processStep(processBarName,that.cfg.process.list[processBarName].percentage);
-                    }
-                    if(res.code == 2){
-                        that.cfg.status = 1;
-                        if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
-                            that.cfg.callBack(res);
+
+                        if(res.code == 2){
+                            that.cfg.status = 1;
+                            if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
+                                that.cfg.callBack(res);
+                            }
                         }
                     }
                 }
             })
-            i++;
-            if(i == len){
-                clearInterval(t);
-            }
-        },500);
-        return;
-        //for循环发起请求 本地测试会出现有两个请求同时到达的情况
-        // for (var i = 0;i < len;i++){
-        //     var item = slices[i];
-        //     var formData = new FormData();
-        //     formData.append(that.cfg.upField, item.blob);
-        //     formData.append('blobNum',item.blobNum);
-        //     formData.append('blobTotal',len);
-        //     formData.append('blobName',blobName);
-        //     formData.append('suffix',fileInfo.fileExt);
-        //     $.ajax({
-        //         url: that.cfg.sliceUploadUrl,
-        //         type: 'POST',
-        //         datatype: 'json',
-        //         data: formData,
-        //         cache:false,
-        //         xhrFields: {
-        //             withCredentials: true
-        //         },
-        //         traditional: true,
-        //         contentType: false,
-        //         processData: false,
-        //         // async:false,
-        //         success: function (res) {
-        //             console.log(res);
-        //             if(res.code == 1 || res.code == 2){
-        //                 j++;
-        //                 that.cfg.process.list[processBarName].percentage = parseFloat(((j / len) * 100).toFixed(3));
-        //                 console.log(j,that.cfg.process.list[processBarName].percentage)
-        //                 that.processStep(processBarName,that.cfg.process.list[processBarName].percentage);
-        //             }
-        //             if(res.code == 2){
-        //                 that.cfg.status = 1;
-        //                 if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
-        //                     that.cfg.callBack(res);
-        //                 }
-        //             }
-        //         }
-        //     })
-        // }
+        }
     },
 
     //切割文件
@@ -401,13 +358,14 @@ jQuery.fn.extend({
 
     //获取分片名
     getBlobName:function(len,prefix,suffix){
-        var hash = ['a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'];
+        //var hash = ['a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'];
+        var hash = ['1','2','3','4','5','6','7','8','9'];
         len = len ? len : 8;
         prefix = prefix ? prefix : '';
         suffix = suffix ? suffix : '';
         var str = prefix;
         for(var i=0;i<len;i++){
-            var need = parseInt(Math.random() * (60 + 1));
+            var need = parseInt(Math.random() * (8 + 1));
             str += hash[need];
         }
         str = str + suffix;
@@ -431,7 +389,7 @@ jQuery.fn.extend({
         }
     },
 
-    intvalProcess:function(processBarName){
+    intValProcess:function(processBarName){
         var Max = this.cfg.process.stepMax,Min = this.cfg.process.stepMin,that = this,rand = 0,p = 0;
         var t = that.cfg.process.list[processBarName].t = setInterval(function(){
             rand = parseInt(Math.random() * (Max - Min + 1) + Min);
