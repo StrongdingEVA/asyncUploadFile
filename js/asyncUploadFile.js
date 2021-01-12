@@ -5,7 +5,7 @@ jQuery.fn.extend({
         this.cfg.filePanel = cfg.filePanel; //文件域选择器
         this.cfg.upField = cfg.upField || "file"; //文件域名称
         this.cfg.autoUpload = cfg.autoUpload == false ? cfg.autoUpload : true; //默认开启自动上传
-        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4","exe","zip","gz"]; //默认允许文件后缀
+        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4","exe","zip","gz","sql"]; //默认允许文件后缀
         this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 100; //默认最大上传尺寸2M
         this.cfg.imgPanel = cfg.imgPanel || ""; //盛放image的容器
         this.cfg.cliText = cfg.cliText || "点击上传"; //未开启自动上传时 生成的按钮的文字
@@ -358,14 +358,13 @@ jQuery.fn.extend({
 
     //获取分片名
     getBlobName:function(len,prefix,suffix){
-        //var hash = ['a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'];
-        var hash = ['1','2','3','4','5','6','7','8','9'];
+        var hash = ['a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'];
         len = len ? len : 8;
         prefix = prefix ? prefix : '';
         suffix = suffix ? suffix : '';
         var str = prefix;
         for(var i=0;i<len;i++){
-            var need = parseInt(Math.random() * (8 + 1));
+            var need = parseInt(Math.random() * 61);
             str += hash[need];
         }
         str = str + suffix;

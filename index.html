@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <title>anync Upload File</title>
+        <meta charset="UTF-8">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/asyncUploadFile.js"></script>
+        <link rel="stylesheet" href="css/an-skill-bar.css">
+        <link rel="stylesheet" href="css/asyncUploadFile.css">
+    </head>
+    <style>
+		#fileDiv{
+			width:100px;
+			height:30px;
+			display: block;
+			background-color:#00f;
+			margin:3px 5px;
+			border-radius: 5px;
+			cursor:pointer;
+		}
+		#fileDiv:hover{
+			background-color: #00a;
+		}
+    </style>
+    <body>
+        <form action="/test.php" method="post" id="form" enctype="multipart/form-data">
+            <img src="" alt="" id="img">
+            <div id="fileDiv">
+            	
+            </div>
+            <button type="button" id="start">开始</button>
+        </form>
+    </body>
+    <script>
+        $(function(){
+            $("#img").asyncUpload({
+                filePanel:'#fileDiv',
+                autoUpload:true,
+                cliBtn:'#start',
+                upUrl:'/test.php',
+                autoSlice:true,
+                maxSize:1024 * 1024 * 1000,
+                modelLimt:1024 * 1024 * 5, //文件大于这个尺寸使用分片上传
+                sliceSize:1024 * 1024 * 5, //每片大小
+                sliceUploadUrl:'/sliceUp.php',
+                isMulti:3,
+                callBack:function(res){
+                    console.log(res);
+                }
+            });
+        })
+    </script>
+</html>
