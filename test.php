@@ -1,4 +1,3 @@
 <?php
-    $str = 'upload/gRKJV7D2.exe';
-    var_dump(file_exists($str));
+    echo json_encode(['code' => 1, 'url' => 'asdfasdjkflasd'])
 ?>

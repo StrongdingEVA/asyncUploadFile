@@ -1,311 +1,358 @@
 jQuery.fn.extend({
-    asyncUpload:function(cfg){
+    asyncUpload: function (cfg) {
         var cfg = cfg;
         this.cfg = {};
-        this.cfg.filePanel = cfg.filePanel; //文件域选择器
-        this.cfg.upField = cfg.upField || "file"; //文件域名称
-        this.cfg.autoUpload = cfg.autoUpload == false ? cfg.autoUpload : true; //默认开启自动上传
-        this.cfg.alowType = cfg.alowType || ["jpg","jpeg","gif","png","mp4","exe","zip","gz","sql"]; //默认允许文件后缀
-        this.cfg.maxSize = cfg.maxSize || 1024 * 1024 * 100; //默认最大上传尺寸2M
-        this.cfg.imgPanel = cfg.imgPanel || ""; //盛放image的容器
-        this.cfg.cliText = cfg.cliText || "点击上传"; //未开启自动上传时 生成的按钮的文字
-        this.cfg.cliBtn = cfg.cliBtn || ''; //手动点击按钮
-        this.cfg.maxLen = cfg.maxLen || 1; //默认允许最多上传文件个数
-        this.cfg.upUrl = cfg.upUrl || ''; //文件上传路径
-        this.cfg.isMulti = cfg.isMulti || false;
+        this.cfg.url              = cfg.url || ''; //文件上传路径
+        this.cfg.button           = cfg.button || ''; //手动点击按钮
+        this.cfg.maxLen           = cfg.maxLen || 1; //默认允许最多上传文件个数
+        this.cfg.isPreview        = cfg.isPreview || true; //是否开启预览
+        this.cfg.fileField        = cfg.fileField || "file"; //文件域名称
+        this.cfg.pattern          = cfg.pattern || 1; //文件上传方式 1普通上传 2 分片上传
+        this.cfg.maxSize          = cfg.maxSize || 1024 * 1024 * 5; //默认最大上传尺寸5M
+        this.cfg.previewContainer = cfg.previewContainer || false; //预览文件的容器
+        this.cfg.buttonText       = cfg.buttonText || "点击上传"; //未开启自动上传时 生成的按钮的文字
+        this.cfg.alowList         = cfg.alowList || ["jpg", "jpeg", "gif", "png"]; //默认允许文件后缀
+        this.cfg.isAutoUpload     = cfg.isAutoUpload == false ? cfg.isAutoUpload : true; //默认开启自动上传
 
-        this.cfg.autoSlice = cfg.autoSlice == false ? cfg.autoSlice : true;
-        this.cfg.modelLimt = cfg.modelLimt || 1024 * 1024 * 20; //文件大于这个尺寸使用分片上传
-        this.cfg.sliceSize = cfg.sliceSize || 1024 * 1024 * 20; //每片大小
-        this.cfg.model = cfg.model || 1; //文件上传方式 1普通上传 2 分片上传
-        this.cfg.callBack = cfg.callBack || {};
-        this.cfg.sliceUploadUrl = cfg.sliceUploadUrl || '';
-        this.cfg.showProgress = true;
-        this.cfg.processName = cfg.processName; //进度条的id
-        this.cfg.process = { //进度条相关
-            percentage:0,//初始化进度
-            stepMin:5, //步进最小进度
-            stepMax:20,//步进最大进度
-            stop:98,
-            list:{}
-        };
+        //上传接口状态码字段和上传成功字段值
+        this.cfg.statusField        = cfg.statusField || 'code';
+        this.cfg.statusSuccessValue = cfg.statusSuccessValue || 1;
 
-        this.cfg.status = 1;
-        this.cfg.hexList = ['PD9waHA','PHNjcmlwdD4'];
-        // 'PD9waHA=' === '<?php'
-        // 'PHNjcmlwdD4=' ==== '<script>'
-        // this.end = this.start + this.cfg.sliceSize;
+        //回调 
+        this.cfg.success            = cfg.success || {};
+        this.cfg.fail               = cfg.fail || {},
+
+        //分片上次相关 TODO 
+        // this.cfg.autoSlice          = cfg.autoSlice == false ? cfg.autoSlice : true;
+        // this.cfg.modelLimt          = cfg.modelLimt || 1024 * 1024 * 20; //文件大于这个尺寸使用分片上传
+        // this.cfg.sliceSize          = cfg.sliceSize || 1024 * 1024 * 20; //每片大小
+        // this.cfg.sliceUploadUrl     = cfg.sliceUploadUrl || '';
+
+        //进度条相关
+        // this.cfg.showProgress = cfg.showProgress || true;
+        // this.cfg.processName = cfg.processName;
+        // this.cfg.process = {
+        //     percentage: 0,
+        //     stepMin: 5,
+        //     stepMax: 20,
+        //     stop: 98,
+        //     list: {}
+        // };
+
         this._init(this.cfg);
     },
-    fileObjs : [],
-    slices : {},
-    _init: function(cfg) {
-        if(!cfg.filePanel || $(cfg.filePanel).length != 1){
-            this.setError(this.getError(1));return;
-        }else if(!cfg.upUrl){
-            this.setError(this.getError(2));return;
-        }else if(!cfg.autoUpload){
-            if(!cfg.cliBtn || $(cfg.cliBtn).length != 1){
-                this.setError(this.getError(8));return;
-            }
+
+    //文件域选择器
+    filePanel: null,
+    status: true,
+    //错误信息
+    error: null,
+    //要上传的文件
+    fileObjs: [],
+    //存放文件分片
+    slices: {},
+
+    //初始化
+    _init: function (cfg) {
+        //绑定元素
+        this.bindElement();
+
+        //检查一通
+        if (!this.checkCfg()) {
+            return this.showError();
         }
 
-        //为容器绑定点击事件
+        //为元素绑定点击事件
         var that = this;
-        $(cfg.filePanel).bind('click',function(){
-            var inp = $('<input type="file" multiple style="display:none">');
-            $(this).after(inp);
-            that.bindChange(inp);
-            inp.click();
+        $(this.filePanel).bind('click', function () {
+            var input = $('<input type="file" multiple style="display:none">');
+            $(this).after(input);
+            that.bindChange(input);
+            input.click();
         })
 
         //为上传按钮绑定点击事件
-        if(cfg.autoUpload === false){
-            $(cfg.cliBtn).bind('click',function(){
+        if (cfg.isAutoUpload === false) {
+            $(cfg.button).bind('click', function () {
                 that.doUpload();
             })
         }
     },
 
-    bindChange:function(ele){
+    //检查配置文件配置项
+    checkCfg: function () {
+        if (!this.cfg.url) {
+            return this.setError('未设置上传路径');
+        }
+
+        if (this.cfg.isAutoUpload == false) {
+            if (typeof this.cfg.button == 'undefined' || $(this.cfg.button).length == 0) {
+                return this.setError('未设置或者未找到上传按钮');
+            }
+        }
+
+        if (typeof this.filePanel == null || $(this.filePanel).length == 0) {
+            return this.setError('未设置或者未找到文件域');
+        }
+
+        if (typeof this.cfg.fail != 'function') {
+            return this.setError('未设置失败回调');
+        }
+
+        if (typeof this.cfg.success != 'function') {
+            return this.setError('未设置成功回调');
+        }
+
+        return true;
+    },
+
+    setError: function (msg) {
+        this.error = msg;
+        return false;
+    },
+
+    showError: function () {
+        if (this.error != null) {
+            if (typeof this.cfg.fail == 'function') {
+                this.cfg.fail(this.error);
+            } else {
+                alert(this.error);
+            }
+        }
+        this.error = null;
+    },
+
+    bindElement: function () {
+        this.filePanel = '#' + $(this[0]).attr('id');
+    },
+
+    // 绑定选中文件后的事件
+    bindChange: function (ele) {
         var that = this;
-        ele.bind('change',function(){
+        ele.bind('change', function () {
             var files = !!this.files ? this.files : [];
-            files = this.files;
-            if (!files.length || !window.FileReader){
-                that.setError(that.getError(5));return;
-            }
 
-            if(that.cfg.isMulti){
-                if(!that.checkMulti(files.length)){
-                    that.setError(that.getError(11));return;
-                }
-            }
-
-            if(that.cfg.autoSlice && !that.cfg.sliceUploadUrl){
-                that.setError(that.getError());return;
+            if (that.checkUploadBefore(files) == false) {
+                return that.showError();
             }
 
             that.setFiles(files);
-            if(that.fileObjs.length == 0){
-                that.setError(that.getError(9));return;
-            }
-
-            that.setFileReader();
-
-            if(that.cfg.autoUpload){
-                that.doUpload();
+            if (that.cfg.isAutoUpload == true) {
+                if (that.doUpload() == false) {
+                    return that.showError();
+                }
+            } else {
+                // 显示选中的文件名 TODO
             }
         });
     },
 
-    setFileReader:function () {
-        var that = this;
-        that.setPanel();
-        that.fileObjs.map(function (a,b) {
-            if(a.isShow == 0){
-                if("jpg,jpeg,png,gif,mp4".indexOf(a.fileExt) !== -1){
-                    var reader = new FileReader();
-                    reader.readAsDataURL(a.file);
-                    reader.onloadend = function(e){
-                        if(!that.checkHex(e.target.result)){
-                            that.setError(that.getError(7));
-                            return;
-                        }
-                        that.setShow(e.target.result,a.fileExt);
-                        that.fileObjs[b].isShow = 1;
-                    }
-                }else{
-                    $(that.cfg.imgPanel).append("文件：" + a.file.name + "不支持预览");
-                }
-            }
-        })
+    // 上传前检查
+    checkUploadBefore: function (files) {
+        if (!this.lenCheck(files)) {
+            return false;
+        }
+
+        if (!this.checkAlow(files)) {
+            return false;
+        }
+
+        if (!this.checkSize(files)) {
+            return false;
+        }
+
+        return true;
     },
 
-    //设置要上传的文件
-    setFiles:function(files){
-        var that = this;
-        var len = files.length;
-        for (var i=0;i<len;i++){
-            var fileExt = '',fileSize = '',model = 0;
-            fileExt = files[i].name.substr(files[i].name.lastIndexOf('.') + 1);
-            fileSize = files[i].size;
-            if(!that.checkAlow(fileExt)){
-                that.setError(that.getError(3));
-                continue;
-            }
-            if(!that.checkSize(fileSize)){
-                that.setError(that.getError(4));
-                continue;
-            }
-            
-            if (fileSize > that.cfg.modelLimt && that.cfg.autoSlice){
-                model = 2;
-            }else{
-                model = 1;
-            }
-            var temp = {
-                file:files[i],
-                model:model,
-                fileExt:fileExt,
-                fileSize:fileSize,
-                status:0,//未上传状态
-                isShow:0//未预览状态
-            };
-            that.fileObjs.push(temp);
+    lenCheck: function (files) {
+        if (!files.length || !window.FileReader) {
+            return this.setError('读取文件失败');
         }
+
+        if (files.length > this.cfg.maxLen) {
+            return this.setError('最多同时上传' + this.cfg.maxLen + '个文件');
+        }
+        
         return true;
     },
 
     //检查文件是否允许上传
-    checkAlow:function(fileExt){
-        var alowStr = this.cfg.alowType.join();
-        if(alowStr.indexOf(fileExt) === -1){
-            return false;
+    checkAlow: function (files) {
+        for (var i = 0; i < files.length; i++) {
+            var alowSuffixs = this.cfg.alowList;
+            var suffix = files[i].name.substr(files[i].name.lastIndexOf('.') + 1);
+            if ($.inArray(suffix, alowSuffixs) == -1) {
+                return this.setError('文件格式不允许：' + suffix);
+            }
         }
+
         return true;
     },
 
     //检查文件尺寸是否超出
-    checkSize:function(fileSize){
-        var alowSize = this.cfg.maxSize;
-        if(!fileSize){
-            return false;
-        }
-        if(fileSize > alowSize){
-            return false;
-        }
-        return true;
-    },
-
-    //检查是否含有可执行代码
-    checkHex:function(data){
-        var hexList = this.cfg.hexList;
-        var len = hexList.length;
-        data = data.length > 512 ? data.substr(0,512) + data.substr(data.length - 512): data;
-        for(var i = 0;i < len;i++){
-            if(data.indexOf(hexList[i]) !== -1){
-                return false;
+    checkSize: function (files) {
+        for (var i = 0; i < files.length; i++) {
+            var size = files[i].size;
+            if (size > this.cfg.maxSize) {
+                return this.setError('文件尺寸超出限制');
             }
         }
 
-        //满足条件无法跳出map TODO
-        // hexList.map(function(b){
-        //     console.log(b);
-        //     if(data.indexOf(b) !== false){
-        //         console.log(111111111111);
-        //         return false;
-        //     }
+        return true;
+    },
 
-        // })
+    //上传文件预览
+    filePreview: function (index) {
+        var that = this;
+        that.setPanel();
+        var file = that.fileObjs[index];
+        if (file.isShow == false) {
+            if ("jpg,jpeg,png,gif,mp4".indexOf(file.suffix) !== -1) {
+                var reader = new FileReader();
+                reader.readAsDataURL(file.file);
+                reader.onloadend = function (e) {
+                    that.setShow(e.target.result, file.suffix);
+                    that.fileObjs[index].isShow = true;
+                }
+            } else {
+                $(that.cfg.previewContainer).append("文件：" + file.file.name + "不支持预览");
+            }
+        }
+    },
+
+    //设置要上传的文件
+    setFiles: function (files) {
+        var that = this;
+        var len = files.length;
+        for (var i = 0; i < len; i++) {
+            var suffix = '', model = 1;
+            suffix = files[i].name.substr(files[i].name.lastIndexOf('.') + 1);
+
+            var temp = {
+                file: files[i],
+                model: model,
+                suffix: suffix,
+                fileSize: files[i].size,
+                status: false,//未上传状态
+                isShow: false//未预览状态
+            };
+            that.fileObjs.push(temp);
+        }
+
         return true;
     },
 
     //设置显示预览图
-    setShow:function(url,fileExt){
-        if(!url){
+    setShow: function (url, suffix) {
+        if (!url) {
             return false;
         }
         var typeStrImage = 'jpg,jpeg,png,gif';
         var typeStrVideo = 'mp4';
         var html = '';
-        if(typeStrImage.indexOf(fileExt) !== -1){
-            html = '<img src="'+ url +'" width="120px" />';
-        }else if(typeStrVideo.indexOf(fileExt) !== -1){
-            html = '<video src="'+ url +'" controls height="120">您的浏览器不支持 video 标签。</video>';
-        }else{
+        if (typeStrImage.indexOf(suffix) !== -1) {
+            html = '<img src="' + url + '" width="120px" />';
+        } else if (typeStrVideo.indexOf(suffix) !== -1) {
+            html = '<video src="' + url + '" controls height="120">您的浏览器不支持 video 标签。</video>';
+        } else {
             html = '该文件类型不支持预览';
         }
 
-        $(this.cfg.imgPanel).append(html)
+        $(this.cfg.previewContainer).append(html)
     },
-    setPanel:function(){
-        if(!this.cfg.imgPanel){
+
+    setPanel: function () {
+        if (!this.cfg.previewContainer) {
             $(this).after('<div id="asyn_panel"></div>');
         }
-        this.cfg.imgPanel = '#asyn_panel';
+        this.cfg.previewContainer = '#asyn_panel';
     },
 
     //上传文件
-    doUpload:function(){
-        var that = this,files = that.fileObjs,processBarName = '';
-        that.showProcess(files);
-        if(that.cfg.status){
-            if (files.length > 0){
-                files.map(function(a,b){
-                    if(a.status == 0){
-                        that.cfg.status = 0;
-                        processBarName = that.getProcessName(b);
-                        if(!a.file.size){
-                            that.setError(that.getError(9));return;
+    doUpload: function () {
+        var that = this,
+            files = that.fileObjs;
+
+        if (that.status == true) {
+            that.status = false;
+            files.map(function (file, index) {
+                if (file.status == false) {
+                    if (file.model == 1) {//普通上传方式
+                        that.uploadNormal(file.file, index);
+                    } else {//分片上传方式
+                        that.slices[file.file.name] = {
+                            start: 0,
+                            end: that.cfg.sliceSize,
+                            block: 0,
+                            blobs: []
                         }
-                        if(a.model == 1){//普通上传方式
-                            that.uploadNormal(a.file,processBarName);
-                        }else{//分片上传方式
-                            that.slices[a.file.name] = {
-                                start:0,
-                                end:that.cfg.sliceSize,
-                                block:0,
-                                blobs:[]
-                            }
-                            that.uploadSlice(a,processBarName);
-                        }
+                        that.uploadSlice(file);
                     }
-                    that.fileObjs[b].status = 1;
-                })
-            }
-        }else{
-            this.setError(this.getError(12));return;
+                }
+                that.fileObjs[index].status = true;
+            })
+            that.status = true;
+            return true;
+        } else {
+            return this.setError('还有文件正在上传，请稍候操作');
         }
     },
 
     //普通上传
-    uploadNormal:function(data,processBarName){
-        this.intValProcess(processBarName);
+    uploadNormal: function (data, index) {
         var that = this;
         var formData = new FormData();
-        formData.append(that.cfg.upField, data);
+        formData.append(that.cfg.fileField, data);
         $.ajax({
-            url: that.cfg.upUrl,
+            url: that.cfg.url,
             type: 'POST',
             datatype: 'json',
             data: formData,
-            cache:false,
+            cache: false,
             xhrFields: {
                 withCredentials: true
             },
+            async: false,
             traditional: true,
             contentType: false,
             processData: false,
             success: function (res) {
-                that.cfg.status = 1;
-                that.processStep(processBarName,100);
-                if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
-                    that.cfg.callBack(res);
+                res = eval('(' + res + ')');
+                if (res[that.cfg.statusField] == that.cfg.statusSuccessValue) {
+                    that.filePreview(index);
+                }
+
+                if (typeof that.cfg.success == 'function') {
+                    that.cfg.success(res);
+                }
+            },
+            fail: function (res) {
+                if (typeof that.cfg.fail == 'function') {
+                    that.cfg.fail(res);
                 }
             }
         })
     },
 
     //分片上传
-    uploadSlice:function(fileInfo,processBarName){
-        var that = this,len = Math.ceil(fileInfo.file.size / this.cfg.sliceSize),blobName = that.getBlobName(8),j = 0,i = 0,t = 0,slices = [];
+    uploadSlice: function (fileInfo, processBarName) {
+        var that = this, len = Math.ceil(fileInfo.file.size / this.cfg.sliceSize), blobName = that.getBlobName(8), j = 0, i = 0, t = 0, slices = [];
         that.sliceFile(fileInfo.file);
         slices = that.slices[fileInfo.file.name].blobs;
-        for (var i = 0;i < len;i++){
+        for (var i = 0; i < len; i++) {
             var item = slices[i];
             var formData = new FormData();
-            formData.append(that.cfg.upField, item.blob);
-            formData.append('blobNum',item.blobNum);
-            formData.append('blobTotal',len);
-            formData.append('blobName',blobName);
-            formData.append('suffix',fileInfo.fileExt);
+            formData.append(that.cfg.fileField, item.blob);
+            formData.append('blobNum', item.blobNum);
+            formData.append('blobTotal', len);
+            formData.append('blobName', blobName);
+            formData.append('suffix', fileInfo.suffix);
             $.ajax({
                 url: that.cfg.sliceUploadUrl,
                 type: 'POST',
                 datatype: 'json',
                 data: formData,
-                cache:false,
+                cache: false,
                 xhrFields: {
                     withCredentials: true
                 },
@@ -314,14 +361,14 @@ jQuery.fn.extend({
                 processData: false,
                 // async:false,
                 success: function (res) {
-                    if(res.code >= 0){
+                    if (res.code >= 0) {
                         j++;
                         that.cfg.process.list[processBarName].percentage = parseFloat(((j / len) * 100).toFixed(3));
-                        that.processStep(processBarName,that.cfg.process.list[processBarName].percentage);
+                        that.processStep(processBarName, that.cfg.process.list[processBarName].percentage);
 
-                        if(res.code == 2){
-                            that.cfg.status = 1;
-                            if(that.cfg.callBack && (typeof that.cfg.callBack) == 'function'){
+                        if (res.code == 2) {
+                            that.status = true;
+                            if (that.cfg.callBack && (typeof that.cfg.callBack) == 'function') {
                                 that.cfg.callBack(res);
                             }
                         }
@@ -332,139 +379,34 @@ jQuery.fn.extend({
     },
 
     //切割文件
-    sliceFile:function(file){
-        var that = this,thatFile = file,blob = thatFile.slice(that.slices[file.name].start,that.slices[file.name].end);
+    sliceFile: function (file) {
+        var that = this, thatFile = file, blob = thatFile.slice(that.slices[file.name].start, that.slices[file.name].end);
         that.slices[file.name].start = that.slices[file.name].end;
         that.slices[file.name].end += that.cfg.sliceSize;
         that.slices[file.name].block += 1;
 
         var temp = {
-            blob:blob,
-            blobNum:that.slices[file.name].block,
+            blob: blob,
+            blobNum: that.slices[file.name].block,
         };
         that.slices[file.name].blobs.push(temp);
-        if(that.slices[file.name].start < file.size){
+        if (that.slices[file.name].start < file.size) {
             that.sliceFile(file);
         }
     },
 
-    //检查多个文件上传文件个数是否超出
-    checkMulti:function(len){
-        if(len > this.cfg.isMulti){
-            return false;
-        }
-        return true;
-    },
-
     //获取分片名
-    getBlobName:function(len,prefix,suffix){
-        var hash = ['a','b','c','d','e','f','g','h','i','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9'];
+    getBlobName: function (len, prefix, suffix) {
+        var hash = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
         len = len ? len : 8;
         prefix = prefix ? prefix : '';
         suffix = suffix ? suffix : '';
         var str = prefix;
-        for(var i=0;i<len;i++){
+        for (var i = 0; i < len; i++) {
             var need = parseInt(Math.random() * 61);
             str += hash[need];
         }
         str = str + suffix;
         return str;
-    },
-
-    showProcess:function(files){
-        var that = this;
-        if(that.cfg.status){
-            if (files.length > 0){
-                files.map(function(a,b){
-                    if(a.status == 0){
-                        if(that.cfg.showProgress){
-                            var processBarName = that.getProcessName(b);
-                            that.cfg.process.list[processBarName] = {'t':null,'percentage':0};
-                            $(that).after('<div class="process" id="'+ processBarName +'"><div class="processbar html"><div class="filled" data-width="0%"></div><span class="fname">'+ a.file.name +' <span class="percent">0%</span></span></div></div>');
-                        }
-                    }
-                })
-            }
-        }
-    },
-
-    intValProcess:function(processBarName){
-        var Max = this.cfg.process.stepMax,Min = this.cfg.process.stepMin,that = this,rand = 0,p = 0;
-        var t = that.cfg.process.list[processBarName].t = setInterval(function(){
-            rand = parseInt(Math.random() * (Max - Min + 1) + Min);
-            that.cfg.process.list[processBarName].percentage += rand;
-            p = that.cfg.process.list[processBarName].percentage;
-            if (p >= that.cfg.process.stop){
-                that.processStep(processBarName,that.cfg.process.stop);
-                clearInterval(t);
-            }else{
-                that.processStep(processBarName,p);
-            }
-        },500);
-    },
-
-    processStep:function(processBarName,process){
-        var p =  $('#' + processBarName);
-        if(p.length){
-            var width = parseInt(p.find('.processbar').css('width'));
-            p.find('.filled').attr('data-width',process + '%').stop().animate({width:parseInt(width * process / 100)});
-            p.find('.percent').text(process.toFixed(2) + '%');
-            if(process == 100){
-                clearInterval(this.cfg.process.list[processBarName].t);
-            }
-        }
-    },
-
-    getProcessName:function(key){
-        return processBarName = this.cfg.processName ? this.cfg.processName : 'process_bar_' + key;
-    },
-
-    //输出错误信息
-    setError:function(msg){
-        this.cfg.status = 0;
-        console.log(msg);
-    },
-    getError:function(k){
-        switch (k){
-            case 1:
-                return "未设置或找不到" + this.cfg.filePanel + '元素';
-                break;
-            case 2:
-                return "未设置文件文件上传路径";
-                break;
-            case 3:
-                return "文件类型错误";
-                break;
-            case 4:
-                return "文件大小超出";
-                break;
-            case 5:
-                return "读取文件流失败";
-                break;
-            case 6:
-                return "文件大小为零";
-                break;
-            case 7:
-                return "文件含有可执行文件";
-                break;
-            case 8:
-                return "请设置手动上传按钮";
-                break;
-            case 9:
-                return "没有可以上传的文件";
-                break;
-            case 10:
-                return "使用分片上传必须设置分片上传地址";
-                break;
-            case 11:
-                return "超出最大上传个数";
-                break;
-            case 12:
-                return "文件正在上传中，请稍候";
-                break;
-            default:
-                return "未知错误";
-                break;
-        }
     }
 });
